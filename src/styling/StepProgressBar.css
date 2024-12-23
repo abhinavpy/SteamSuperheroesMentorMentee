@@ -7,6 +7,7 @@
     justify-content: center;
     margin-bottom: 20px; /* space below the bar */
     font-family: 'Montserrat', sans-serif; /* match your form font */
+    flex-wrap: wrap;
   }
   
   /* Each step item is a circle + label + optional connector line */
@@ -56,7 +57,7 @@
     margin-left: 8px;
     margin-right: 8px;
     font-size: 14px;
-    width: 100px; /* adjust as needed */
+    width: 120px; /* adjust as needed */
     text-align: center;
     transition: color 0.2s ease, text-decoration 0.2s ease;
   }
@@ -80,3 +81,38 @@
     background-color: #A9A9A9; /* dark grey for inactive connectors */
   }
   
+  /* Responsive Styles */
+@media (max-width: 768px) {
+    .step-progress-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .step-item {
+      flex-direction: row;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+  
+    .step-connector {
+      display: none; /* Hide connectors on smaller screens */
+    }
+  
+    .step-label {
+      width: auto; /* Allow labels to adjust based on content */
+      margin-left: 10px;
+      margin-right: 0;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .step-circle {
+      width: 25px;
+      height: 25px;
+      font-size: 12px;
+    }
+  
+    .step-label {
+      font-size: 12px;
+    }
+  }

@@ -147,6 +147,7 @@ function Section1({ data, updateData, onNext }) {
 
   return (
     <form className="form-container" onSubmit={handleFormSubmit}>
+      {/* <img src="../../public/SteamSuperheroesLogo.png" alt="Steam Superheroes Logo" width="100" height="200"></img> */}
       <h1 className="form-heading">STEAM Superheroes Mentor Mentee Matching Form</h1> 
       <h2 className="form-heading">Section 1 - Basic Info</h2>
 
