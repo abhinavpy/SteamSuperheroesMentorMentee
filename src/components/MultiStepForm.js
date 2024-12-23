@@ -3,7 +3,10 @@ import Section1 from "./Section1";
 import Section2Mentor from "./Section2Mentor";
 import Section3Mentee from "./Section3Mentee";
 import Section4 from "./Section4";
+import StepProgressBar from "./StepProgressBar";
 import "../styling/Form.css"; // Ensure your CSS is imported here
+import { FaArrowLeft } from "react-icons/fa";
+import { convertToCSV } from "../utils"; // Import the helper function
 
 function MultiStepForm() {
   // This state tracks which step (page) the user is on
@@ -41,8 +44,11 @@ function MultiStepForm() {
     interestsOther: "",            // If "Other…" is checked
 
     // ====== (Optional) Section4 fields ======
-    // ... If you have additional universal fields at the end
+    availability: [],
   });
+
+  const totalSteps = 4;
+  const stepLabels = ["Basic Info", "Mentor", "Mentee", "Calendar"];
 
   /**
    * Helper to merge updates from child components into our main formData state.
@@ -86,16 +92,65 @@ function MultiStepForm() {
    */
   const handleSubmitFinal = () => {
     // Perform final validations, or post data to an API, etc.
-    alert("Form submitted successfully!");
-    console.log("Final Form Data:", formData);
+    // For now, we'll generate and download the CSV
 
-    // Optionally reset or do something else
-    // setStep(1);
-    // setFormData({ ...initialValues });
+    const csv = convertToCSV(formData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary link to trigger download
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "form_data.csv"); // Filename
+
+    // Append to the document and trigger click
+    document.body.appendChild(link);
+    link.click();
+
+    // Clean up
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    // Optionally, notify the user
+    alert("Form submitted successfully! Your data has been downloaded as form_data.csv.");
+    console.log("Final Form Data:", formData);
+    // Optionally reset the form or navigate away
   };
+
+    // Allow user to go back
+    const handleBack = () => {
+        if (step === 2) {
+            // Mentor -> go back to Section 1
+            setStep(1);
+        } else if (step === 3) {
+            // Mentee -> go back to Section 1
+            setStep(1);
+        } else if (step === 4) {
+            // If user is on step 4, check role
+            if (formData.role === "mentor") {
+            setStep(2); // go back to Mentor section
+            } else {
+            setStep(3); // go back to Mentee section
+            }
+        }
+        };
 
   return (
     <div className="page-container">
+      {/* Step bar at the top */}
+      <StepProgressBar step={step} totalSteps={totalSteps} stepLabels={stepLabels} role={formData.role} />
+
+      {step > 1 && (
+        <button
+            type="button"
+            onClick={handleBack}
+            style={{ background: "none", border: "none", cursor: "pointer" }}
+        >
+            <FaArrowLeft size={20} color="#00B3A6" />
+            <span style={{ marginLeft: "8px", color: "#00B3A6" }}> Back</span>
+        </button>
+        )}
+
       {/* Conditionally render one section at a time based on 'step' */}
       {step === 1 && (
         <Section1
