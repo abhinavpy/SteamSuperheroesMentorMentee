@@ -55,7 +55,8 @@ const Dashboard = () => {
           </button>
         </div>
         <div className="sidebar-footer">
-          <p onClick={handleLogout}>Logout</p>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+          {/* <p onClick={handleLogout}>Logout</p> */}
           <p>Help & Support</p>
         </div>
       </aside>

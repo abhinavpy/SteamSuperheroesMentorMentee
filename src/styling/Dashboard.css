@@ -29,6 +29,7 @@ body {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
+    color: #00B3A6; /* Teal Primary */
   }
   
   .sidebar-menu {
@@ -41,16 +42,18 @@ body {
     margin: 5px 0;
     cursor: pointer;
     border-radius: 5px;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
+    color: #343a40; /* Dark text */
   }
   
   .menu-item:hover {
-    background-color: #f0f0f0;
+    background-color: #66d9cc; /* Teal Light */
+    color: #ffffff;
   }
   
   .menu-item.active {
-    background-color: #f0f4ff;
-    font-weight: bold;
+    background-color: #00B3A6; /* Teal Primary */
+    color: #ffffff;
   }
   
   .sidebar-projects {
@@ -60,6 +63,7 @@ body {
   .sidebar-projects h3 {
     font-size: 16px;
     margin-bottom: 10px;
+    color: #00B3A6; /* Teal Primary */
   }
   
   .sidebar-projects ul {
@@ -71,6 +75,7 @@ body {
     display: flex;
     align-items: center;
     margin: 5px 0;
+    color: #343a40;
   }
   
   .dot {
@@ -89,7 +94,7 @@ body {
   }
   
   .add-project-btn {
-    background-color: #0056ff;
+    background-color: #00B3A6; /* Teal Primary */
     color: #fff;
     padding: 8px 12px;
     margin-top: 10px;
@@ -97,25 +102,46 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
   }
   
   .add-project-btn:hover {
-    background-color: #003cb3;
+    background-color: #009688; /* Teal Dark */
+    transform: translateY(-2px);
+  }
+
+  .logout-btn {
+    background-color: #000000; /* Teal Primary */
+    color: #fff;
+    padding: 8px 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  
+  .logout-btn:hover {
+    background-color: #000000; /* Teal Dark */
+    transform: translateY(-2px);
   }
   
   .sidebar-footer {
     font-size: 14px;
     margin-top: auto;
+    color: #343a40;
   }
   
   .sidebar-footer p {
     margin: 5px 0;
     cursor: pointer;
-    color: #555;
+    color: #00B3A6; /* Teal Primary */
+    transition: color 0.2s;
   }
+  
   .sidebar-footer p:hover {
-    color: #000;
+    color: #009688; /* Teal Dark */
   }
   
   /* Main Content */
@@ -123,6 +149,7 @@ body {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    background: linear-gradient(to bottom right, #ffffff, #affdf8); /* Teal Gradient */
   }
   
   /* Header */
@@ -146,7 +173,7 @@ body {
   }
   
   .new-project-btn {
-    background-color: #0056ff;
+    background-color: #00B3A6; /* Teal Primary */
     color: #fff;
     padding: 10px 20px;
     border: none;
@@ -154,11 +181,12 @@ body {
     margin-right: 20px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
   }
   
   .new-project-btn:hover {
-    background-color: #003cb3;
+    background-color: #009688; /* Teal Dark */
+    transform: translateY(-2px);
   }
   
   .profile img {
@@ -181,7 +209,7 @@ body {
   .stats {
     display: flex;
     gap: 20px;
-    flex-wrap: wrap; /* For better wrapping on smaller screens */
+    flex-wrap: wrap;
   }
   
   .stats div {
@@ -195,7 +223,7 @@ body {
   
   /* Projects Section */
   .projects-section {
-    background: #fff;
+    background: #ffffff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -214,18 +242,19 @@ body {
   }
   
   .section-header button {
-    background-color: #00B3A6;
+    background-color: #00B3A6; /* Teal Primary */
     color: #fff;
     padding: 8px 12px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease;
   }
   
   .section-header button:hover {
-    background-color: #009688;
+    background-color: #009688; /* Teal Dark */
+    transform: translateY(-2px);
   }
   
   .projects-table {
@@ -241,7 +270,7 @@ body {
   }
   
   .projects-table th {
-    background-color: #f0f4ff;
+    background-color: #f0f4ff; /* Light Teal */
     color: #343a40;
   }
   
@@ -253,35 +282,35 @@ body {
   }
   
   .status.in-progress {
-    background-color: #ffc107;
+    background-color: #ffc107; /* Yellow */
   }
   
   .status.pending {
-    background-color: #f44336;
+    background-color: #f44336; /* Red */
   }
   
   .status.completed {
-    background-color: #4caf50;
+    background-color: #4caf50; /* Green */
   }
   
   /* =============== Responsive Design =============== */
   
   /* 
      1) Convert dashboard layout to column
-     2) Collapse or hide sidebar if desired
-     3) Adjust fonts & container widths
+     2) Adjust sidebar for smaller screens
+     3) Modify font sizes and button sizes
   */
   @media (max-width: 768px) {
     .dashboard-container {
       flex-direction: column;
     }
   
-    /* Optional: Hide the sidebar or convert it to a top bar */
+    /* Sidebar Adjustments */
     .sidebar {
       width: 100%;
       flex-direction: row;
       overflow-x: auto;
-      align-items: flex-start;
+      align-items: center;
       height: auto;
       box-shadow: none;
     }
@@ -289,6 +318,7 @@ body {
     .sidebar-title {
       margin-right: 20px;
       margin-bottom: 0;
+      font-size: 20px;
     }
   
     .sidebar-menu {
@@ -298,17 +328,24 @@ body {
     }
   
     .menu-item {
-      white-space: nowrap; /* Keep items in one line if horizontally scrollable */
+      white-space: nowrap;
+      padding: 8px 12px;
+      font-size: 14px;
     }
   
     .sidebar-projects {
-      display: none; /* Hide project list on smaller screens if cluttered */
+      display: none; /* Hide projects on smaller screens */
     }
   
     .sidebar-footer {
       margin-top: 10px;
       display: flex;
       gap: 20px;
+      flex-wrap: wrap;
+    }
+  
+    .sidebar-footer p {
+      font-size: 14px;
     }
   
     .main-content {
@@ -338,6 +375,24 @@ body {
     .stats {
       gap: 10px;
     }
+  
+    .projects-section {
+      padding: 10px;
+    }
+  
+    .section-header h2 {
+      font-size: 18px;
+    }
+  
+    .section-header button {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+  
+    .projects-table th,
+    .projects-table td {
+      padding: 8px;
+    }
   }
   
   @media (max-width: 480px) {
@@ -364,7 +419,7 @@ body {
     }
   
     .section-header h2 {
-      font-size: 18px;
+      font-size: 16px;
     }
   
     .section-header button {
@@ -374,7 +429,7 @@ body {
   
     .projects-table th,
     .projects-table td {
-      padding: 8px;
+      padding: 6px;
     }
   }
   
