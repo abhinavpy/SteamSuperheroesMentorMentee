@@ -30,7 +30,7 @@ body {
   
   /* Form heading */
   .form-heading {
-    color: #00B3A6;
+    color: #1AA3B0;
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
@@ -55,7 +55,7 @@ body {
     border-radius: 0; /* Sharp edges */
     font-size: 14px;
     box-sizing: border-box;
-    caret-color: #00B3A6; /* teal caret (optional) */
+    caret-color: #1AA3B0; /* teal caret (optional) */
   }
   
   /*
@@ -122,7 +122,7 @@ body {
   
   /* Button hover effect */
   .form-button:hover {
-    background-color: #00B3A6;
+    background-color: #1AA3B0;
   }
   
   /* Responsive styles */

@@ -33,7 +33,7 @@
   
   /* Specific status styles */
   .step-circle.active {
-    background-color: #00B3A6; /* teal for current step */
+    background-color: #1AA3B0; /* teal for current step */
     color: #fff;
   }
   
