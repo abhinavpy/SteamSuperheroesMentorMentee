@@ -40,6 +40,8 @@ const LoginForm = () => {
       {/* Left Section */}
       <div className="login-left">
         <h1 className="logo">STEAM Superheroes</h1>
+        {/* <img src="/SteamSuperheroes.png" alt="Example" /> */}
+        {/* <link rel="icon" href="%PUBLIC_URL%/SteamSuperheroesLogo.png" />  */}
         <p className="tagline">Empowering Mentors and Mentees in STEAM Fields. 🦸‍♂️🦸‍♀️</p>
       </div>
 

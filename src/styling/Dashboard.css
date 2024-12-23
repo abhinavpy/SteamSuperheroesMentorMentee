@@ -109,9 +109,9 @@ body {
     background-color: #009688; /* Teal Dark */
     transform: translateY(-2px);
   }
-
+  
   .logout-btn {
-    background-color: #000000; /* Teal Primary */
+    background-color: #00B3A6; /* Teal Primary */
     color: #fff;
     padding: 8px 12px;
     margin-top: 10px;
@@ -123,7 +123,7 @@ body {
   }
   
   .logout-btn:hover {
-    background-color: #000000; /* Teal Dark */
+    background-color: #009688; /* Teal Dark */
     transform: translateY(-2px);
   }
   
@@ -142,6 +142,27 @@ body {
   
   .sidebar-footer p:hover {
     color: #009688; /* Teal Dark */
+  }
+  
+  /* Sidebar Toggle Button */
+  .sidebar-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background-color: #00B3A6;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 1000;
+    display: none; /* Hidden by default, shown on small screens */
+    transition: background-color 0.2s ease;
+  }
+  
+  .sidebar-toggle:hover {
+    background-color: #009688;
   }
   
   /* Main Content */
@@ -221,12 +242,21 @@ body {
     margin-right: 5px;
   }
   
+  /* Dashboard Row */
+  .dashboard-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
   /* Projects Section */
   .projects-section {
     background: #ffffff;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex: 2; /* Takes up more space */
+    min-width: 300px; /* Ensures readability on smaller screens */
   }
   
   .section-header {
@@ -293,11 +323,105 @@ body {
     background-color: #4caf50; /* Green */
   }
   
+  /* Calendar Section */
+  .calendar-section {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Takes up less space */
+    min-width: 300px; /* Ensures readability on smaller screens */
+  }
+  
+  .calendar-container {
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 15px; /* Curved edges */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .custom-calendar {
+    border: none;
+    font-family: "Roboto", sans-serif;
+  }
+  
+  /* Override react-calendar styles to match teal theme */
+  .react-calendar {
+    width: 100%;
+    background: none;
+    border: none;
+    font-family: "Roboto", sans-serif;
+    line-height: 1.125em;
+  }
+  
+  .react-calendar__navigation button {
+    color: #00B3A6; /* Teal Primary */
+    min-width: 44px;
+    background: none;
+    font-size: 16px;
+  }
+  
+  .react-calendar__navigation button:hover {
+    color: #009688; /* Teal Dark */
+  }
+  
+  .react-calendar__month-view__weekdays {
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #00B3A6; /* Teal Primary */
+  }
+  
+  .react-calendar__tile {
+    max-width: 100%;
+    padding: 10px 6.6667px;
+    background: none;
+    text-align: center;
+    line-height: 16px;
+    transition: background-color 0.3s ease;
+    color: #343a40; /* Dark text */
+  }
+  
+  .react-calendar__tile:hover {
+    background-color: #66d9cc; /* Teal Light */
+    color: #ffffff;
+  }
+  
+  .react-calendar__tile--active {
+    background-color: #00B3A6; /* Teal Primary */
+    color: #ffffff;
+  }
+  
+  .react-calendar__tile--now {
+    background: none;
+    color: #00B3A6; /* Teal Primary */
+    font-weight: bold;
+  }
+  
+  /* Highlight dates with events */
+  .react-calendar__tile.event-date {
+    background-color: #68d391; /* Accent Teal (Green) */
+    color: #ffffff;
+    position: relative;
+  }
+  
+  .react-calendar__tile.event-date::after {
+    content: "•";
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #ff6f91; /* Accent Pink */
+  }
+  
   /* =============== Responsive Design =============== */
   
   /* 
-     1) Convert dashboard layout to column
-     2) Adjust sidebar for smaller screens
+     1) Adjust dashboard-row layout
+     2) Show sidebar toggle on smaller screens
      3) Modify font sizes and button sizes
   */
   @media (max-width: 768px) {
@@ -376,7 +500,8 @@ body {
       gap: 10px;
     }
   
-    .projects-section {
+    .projects-section,
+    .calendar-section {
       padding: 10px;
     }
   
@@ -392,6 +517,26 @@ body {
     .projects-table th,
     .projects-table td {
       padding: 8px;
+    }
+  
+    /* Dashboard Row Adjustments */
+    .dashboard-row {
+      flex-direction: column;
+      gap: 20px;
+    }
+  
+    /* Calendar Adjustments */
+    .calendar-container {
+      padding: 10px;
+    }
+  
+    .custom-calendar {
+      font-size: 14px;
+    }
+  
+    /* Show Sidebar Toggle Button */
+    .sidebar-toggle {
+      display: block;
     }
   }
   
@@ -430,6 +575,15 @@ body {
     .projects-table th,
     .projects-table td {
       padding: 6px;
+    }
+  
+    /* Calendar Adjustments */
+    .calendar-container {
+      padding: 10px;
+    }
+  
+    .custom-calendar {
+      font-size: 12px;
     }
   }
   

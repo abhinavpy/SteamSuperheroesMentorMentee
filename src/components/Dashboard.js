@@ -4,12 +4,22 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styling/Dashboard.css";
 import { AuthContext } from "../context/AuthContext";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css"; // Import default styles
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
 
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Sample events array (you can replace this with dynamic data)
+  const events = [
+    { date: new Date(2024, 0, 12), title: "Help DStudio get more customers" },
+    { date: new Date(2024, 0, 15), title: "Plan a trip" },
+    { date: new Date(2024, 0, 20), title: "Return a package" },
+  ];
 
   const handleNewMatching = () => {
     navigate("/form/section1");
@@ -27,16 +37,21 @@ const Dashboard = () => {
     }
   };
 
+  const onChangeCalendar = (date) => {
+    setSelectedDate(date);
+    // You can add additional logic here, e.g., fetching events for the selected date
+  };
+
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarVisible ? "visible" : "hidden"}`}>
-        <h2 className="sidebar-title">Mondays</h2>
+        <h2 className="sidebar-title">Mentee Dashboard</h2>
         <ul className="sidebar-menu">
           <li className="menu-item active">Dashboard</li>
-          <li className="menu-item">Projects</li>
-          <li className="menu-item">My Task</li>
-          <li className="menu-item">Chats</li>
+          <li className="menu-item">Sessions</li>
+          <li className="menu-item">My Mentors</li>
+          <li className="menu-item">Notes</li>
           <li className="menu-item">Documents</li>
           <li className="menu-item">Receipts</li>
         </ul>
@@ -56,7 +71,6 @@ const Dashboard = () => {
         </div>
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
-          {/* <p onClick={handleLogout}>Logout</p> */}
           <p>Help & Support</p>
         </div>
       </aside>
@@ -88,56 +102,88 @@ const Dashboard = () => {
           <h1>Good Evening! John,</h1>
           <div className="stats">
             <div>
-              <span>⏱</span> 12hrs Time Saved
+              <span>⏱</span> 12hrs of Meeting Time Completed
             </div>
             <div>
-              <span>✅</span> 24 Projects Completed
+              <span>✅</span> 24 Meetings Completed
             </div>
             <div>
-              <span>⚙️</span> 7 Projects In-progress
+              <span>⚙️</span> 7 Sessions In-progress
             </div>
           </div>
         </section>
 
-        {/* Projects Table */}
-        <section className="projects-section">
-          <header className="section-header">
-            <h2>My Projects</h2>
-            <button>See All</button>
-          </header>
-          <table className="projects-table">
-            <thead>
-              <tr>
-                <th>Task Name</th>
-                <th>Assign</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Help DStudio get more customers</td>
-                <td>Phoenix Winters</td>
-                <td>
-                  <span className="status in-progress">In Progress</span>
-                </td>
-              </tr>
-              <tr>
-                <td>Plan a trip</td>
-                <td>Cohen Merritt</td>
-                <td>
-                  <span className="status pending">Pending</span>
-                </td>
-              </tr>
-              <tr>
-                <td>Return a package</td>
-                <td>Lukas Juarez</td>
-                <td>
-                  <span className="status completed">Completed</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
+        {/* Meetings and Calendar Row */}
+        <div className="dashboard-row">
+          {/* My Meetings Section */}
+          <section className="projects-section">
+            <header className="section-header">
+              <h2>My Meetings</h2>
+              <button>See All</button>
+            </header>
+            <table className="projects-table">
+              <thead>
+                <tr>
+                  <th>Meeting Title</th>
+                  <th>Date & Time</th>
+                  <th>Assign</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Help DStudio get more customers</td>
+                  <td>Jan 12, 2024</td>
+                  <td>Phoenix Winters</td>
+                  <td>
+                    <span className="status in-progress">In Progress</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Plan a trip</td>
+                  <td>Jan 15, 2024</td>
+                  <td>Cohen Merritt</td>
+                  <td>
+                    <span className="status pending">Pending</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Return a package</td>
+                  <td>Jan 20, 2024</td>
+                  <td>Lukas Juarez</td>
+                  <td>
+                    <span className="status completed">Completed</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          {/* Calendar Section */}
+          <section className="calendar-section">
+            <header className="section-header">
+              <h2>My Calendar</h2>
+            </header>
+            <div className="calendar-container">
+              <Calendar
+                onChange={onChangeCalendar}
+                value={selectedDate}
+                className="custom-calendar"
+                tileClassName={({ date, view }) => {
+                  if (view === "month") {
+                    const event = events.find(
+                      (event) =>
+                        event.date.getFullYear() === date.getFullYear() &&
+                        event.date.getMonth() === date.getMonth() &&
+                        event.date.getDate() === date.getDate()
+                    );
+                    return event ? "event-date" : null;
+                  }
+                }}
+              />
+            </div>
+          </section>
+        </div>
       </main>
     </div>
   );
