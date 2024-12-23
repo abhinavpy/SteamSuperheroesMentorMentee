@@ -4,7 +4,7 @@
 .login-container {
     display: flex;
     height: 100vh;
-    background: linear-gradient(to bottom, #1AA3B0, #FFFFFF); /* Updated gradient to teal */
+    background: linear-gradient(to bottom, #1AA3B0, #FFFFFF);
     font-family: 'Roboto', sans-serif;
   }
   
@@ -20,17 +20,17 @@
   }
   
   .logo {
-    font-size: 2.5rem; /* Increased size for prominence */
+    font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 20px;
     color: #fff;
   }
   
   .tagline {
-    font-size: 1.3rem; /* Slightly smaller for hierarchy */
+    font-size: 1.3rem;
     text-align: center;
     max-width: 300px;
-    color: #000000; /* Darker shade for better readability */
+    color: #000000;
   }
   
   /* Right section */
@@ -42,7 +42,7 @@
     background: #fff;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
-    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1); /* Added subtle shadow */
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
   }
   
   .form-wrapper {
@@ -56,13 +56,13 @@
     font-size: 1.8rem;
     font-weight: bold;
     margin-bottom: 10px;
-    color: #1AA3B0; /* Teal color for title */
+    color: #1AA3B0;
   }
   
   .form-subtitle {
     font-size: 1rem;
     color: #6c757d;
-    margin-bottom: 25px; /* Increased space for better layout */
+    margin-bottom: 25px;
   }
   
   /* Input fields */
@@ -75,7 +75,7 @@
     font-weight: bold;
     margin-bottom: 5px;
     display: block;
-    color: #343a40; /* Dark grey for labels */
+    color: #343a40;
   }
   
   .input-wrapper {
@@ -92,7 +92,7 @@
   }
   
   .input-field:focus {
-    border-color: #1AA3B0; /* Teal border on focus */
+    border-color: #1AA3B0;
     outline: none;
     box-shadow: 0 0 5px rgba(0, 179, 166, 0.5);
   }
@@ -103,14 +103,14 @@
     right: 15px;
     transform: translateY(-50%);
     color: #6c757d;
-    font-size: 1.2rem; /* Slightly larger for better visibility */
+    font-size: 1.2rem;
   }
   
   /* Button styles */
   .submit-btn {
     width: 100%;
     padding: 12px;
-    background: #1AA3B0; /* Teal color */
+    background: #1AA3B0;
     color: white;
     border: none;
     border-radius: 5px;
@@ -120,7 +120,7 @@
   }
   
   .submit-btn:hover {
-    background: #009688; /* Darker teal on hover */
+    background: #009688;
     transform: translateY(-2px);
   }
   
@@ -135,7 +135,7 @@
   }
   
   .links a {
-    color: #1AA3B0; /* Teal color for links */
+    color: #1AA3B0;
     text-decoration: none;
     font-weight: bold;
   }
@@ -147,7 +147,7 @@
   .divider {
     display: flex;
     align-items: center;
-    margin: 25px 0; /* Increased margin for better spacing */
+    margin: 25px 0;
   }
   
   .divider hr {
@@ -166,7 +166,7 @@
   /* Social login buttons */
   .social-login {
     display: flex;
-    justify-content: space-between; /* Evenly distribute buttons */
+    justify-content: space-between;
     gap: 10px;
   }
   
@@ -195,20 +195,20 @@
   }
   
   .social-btn.facebook {
-    color: #3b5998; /* Facebook Blue */
+    color: #3b5998;
   }
   
   .social-btn.twitter {
-    color: #1DA1F2; /* Twitter Blue */
+    color: #1DA1F2;
   }
   
   .social-btn.google {
-    color: #DB4437; /* Google Red */
+    color: #DB4437;
   }
   
   /* Error message styling */
   .error-message {
-    color: #DC3545; /* Bootstrap danger red */
+    color: #DC3545;
     background-color: #F8D7DA;
     border: 1px solid #F5C6CB;
     border-radius: 5px;
@@ -217,25 +217,27 @@
     text-align: left;
   }
   
-  /* Responsive Design */
+  /* =============== Responsive Design =============== */
+  
+  /* 
+     1) Stack sections vertically
+     2) Reduce padding/font sizes
+     3) Remove left-section radius on smaller screens
+  */
   @media (max-width: 768px) {
     .login-container {
       flex-direction: column;
     }
   
     .login-left, .login-right {
-      flex: none;
       width: 100%;
       border-radius: 0;
     }
   
-    .login-right {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
+    .login-left {
+      padding: 20px;
     }
-  }
   
-  @media (max-width: 480px) {
     .logo {
       font-size: 2rem;
     }
@@ -243,6 +245,19 @@
     .tagline {
       font-size: 1.1rem;
       max-width: 250px;
+    }
+  
+    .login-right {
+      box-shadow: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      padding: 20px 0;
+      align-items: flex-start;
+    }
+  
+    .form-wrapper {
+      max-width: 90%;
+      margin: 0 auto;
     }
   
     .form-title {
@@ -253,14 +268,24 @@
       font-size: 0.95rem;
       margin-bottom: 20px;
     }
+  }
   
-    .social-login {
-      flex-direction: column;
-      gap: 10px;
+  @media (max-width: 480px) {
+    .logo {
+      font-size: 1.7rem;
     }
   
-    .social-btn {
-      width: 100%;
+    .tagline {
+      font-size: 1rem;
+    }
+  
+    .form-title {
+      font-size: 1.3rem;
+    }
+  
+    .input-field,
+    .submit-btn {
+      font-size: 0.9rem;
     }
   }
   

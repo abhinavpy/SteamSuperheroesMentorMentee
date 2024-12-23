@@ -2,7 +2,7 @@
 
 import React, { useState, useContext, useEffect } from "react";
 import "../styling/LoginForm.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Use Link instead of <a>
 import { AuthContext } from "../context/AuthContext";
 
 const LoginForm = () => {
@@ -89,9 +89,9 @@ const LoginForm = () => {
 
           <div className="links">
             <p>
-              Don’t have an account? <a href="/signup">Sign Up</a>
+              Don’t have an account? <Link to="/signup">Sign Up</Link>
             </p>
-            <a href="/forgot-password">Forgot Password?</a>
+            <Link to="/forgot-password">Forgot Password?</Link>
           </div>
 
           <div className="divider">

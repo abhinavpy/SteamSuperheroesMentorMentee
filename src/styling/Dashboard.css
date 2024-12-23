@@ -22,6 +22,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: all 0.3s ease;
   }
   
   .sidebar-title {
@@ -96,6 +97,7 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
+    transition: background-color 0.2s ease;
   }
   
   .add-project-btn:hover {
@@ -112,7 +114,6 @@ body {
     cursor: pointer;
     color: #555;
   }
-  
   .sidebar-footer p:hover {
     color: #000;
   }
@@ -121,6 +122,7 @@ body {
   .main-content {
     flex: 1;
     padding: 20px;
+    overflow-y: auto;
   }
   
   /* Header */
@@ -152,6 +154,7 @@ body {
     margin-right: 20px;
     cursor: pointer;
     font-size: 14px;
+    transition: background-color 0.2s ease;
   }
   
   .new-project-btn:hover {
@@ -178,6 +181,7 @@ body {
   .stats {
     display: flex;
     gap: 20px;
+    flex-wrap: wrap; /* For better wrapping on smaller screens */
   }
   
   .stats div {
@@ -217,6 +221,7 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
+    transition: background-color 0.2s ease;
   }
   
   .section-header button:hover {
@@ -259,10 +264,56 @@ body {
     background-color: #4caf50;
   }
   
-  /* Responsive Design */
+  /* =============== Responsive Design =============== */
+  
+  /* 
+     1) Convert dashboard layout to column
+     2) Collapse or hide sidebar if desired
+     3) Adjust fonts & container widths
+  */
   @media (max-width: 768px) {
+    .dashboard-container {
+      flex-direction: column;
+    }
+  
+    /* Optional: Hide the sidebar or convert it to a top bar */
     .sidebar {
-      width: 200px;
+      width: 100%;
+      flex-direction: row;
+      overflow-x: auto;
+      align-items: flex-start;
+      height: auto;
+      box-shadow: none;
+    }
+  
+    .sidebar-title {
+      margin-right: 20px;
+      margin-bottom: 0;
+    }
+  
+    .sidebar-menu {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 10px;
+    }
+  
+    .menu-item {
+      white-space: nowrap; /* Keep items in one line if horizontally scrollable */
+    }
+  
+    .sidebar-projects {
+      display: none; /* Hide project list on smaller screens if cluttered */
+    }
+  
+    .sidebar-footer {
+      margin-top: 10px;
+      display: flex;
+      gap: 20px;
+    }
+  
+    .main-content {
+      margin-top: 10px;
+      width: 100%;
     }
   
     .search-bar input {
@@ -271,53 +322,8 @@ body {
   
     .new-project-btn {
       padding: 8px 16px;
+      margin-right: 10px;
       font-size: 12px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .dashboard-container {
-      flex-direction: column;
-    }
-  
-    .sidebar {
-      width: 100%;
-      flex-direction: row;
-      overflow-x: auto;
-    }
-  
-    .sidebar-title {
-      margin-bottom: 0;
-      margin-right: 20px;
-    }
-  
-    .sidebar-menu {
-      display: flex;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-    }
-  
-    .sidebar-projects {
-      display: none; /* Hide projects on very small screens */
-    }
-  
-    .main-content {
-      padding: 10px;
-    }
-  
-    .search-bar input {
-      width: 150px;
-    }
-  
-    .header-actions {
-      flex-direction: column;
-      align-items: flex-end;
-    }
-  
-    .new-project-btn {
-      margin-right: 0;
-      margin-bottom: 10px;
-      width: 100%;
     }
   
     .profile img {
@@ -330,12 +336,40 @@ body {
     }
   
     .stats {
-      flex-direction: column;
       gap: 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .search-bar input {
+      width: 150px;
+      font-size: 0.9rem;
+    }
+  
+    .new-project-btn {
+      padding: 8px 12px;
+      font-size: 0.9rem;
+    }
+  
+    .greeting-section h1 {
+      font-size: 20px;
+    }
+  
+    .stats div {
+      font-size: 14px;
     }
   
     .projects-section {
       padding: 10px;
+    }
+  
+    .section-header h2 {
+      font-size: 18px;
+    }
+  
+    .section-header button {
+      font-size: 12px;
+      padding: 6px 10px;
     }
   
     .projects-table th,

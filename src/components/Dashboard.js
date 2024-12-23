@@ -1,22 +1,36 @@
 // src/components/Dashboard.js
 
-import React from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styling/Dashboard.css";
 import { AuthContext } from "../context/AuthContext";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { logout } = React.useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
+
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   const handleNewMatching = () => {
     navigate("/form/section1");
+    setIsSidebarVisible(false); // Hide sidebar after navigation on mobile
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      logout();
+      navigate("/login");
+    }
   };
 
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarVisible ? "visible" : "hidden"}`}>
         <h2 className="sidebar-title">Mondays</h2>
         <ul className="sidebar-menu">
           <li className="menu-item active">Dashboard</li>
@@ -41,10 +55,15 @@ const Dashboard = () => {
           </button>
         </div>
         <div className="sidebar-footer">
-          <p onClick={logout} style={{ cursor: "pointer" }}>Logout</p>
+          <p onClick={handleLogout}>Logout</p>
           <p>Help & Support</p>
         </div>
       </aside>
+
+      {/* Sidebar Toggle Button */}
+      <button className="sidebar-toggle" onClick={toggleSidebar}>
+        {isSidebarVisible ? "✖" : "☰"} {/* Using icons for better UX */}
+      </button>
 
       {/* Main Content */}
       <main className="main-content">
