@@ -147,6 +147,7 @@ function Section1({ data, updateData, onNext }) {
 
   return (
     <form className="form-container" onSubmit={handleFormSubmit}>
+      <h1 className="form-heading">STEAM Superheroes Mentor Mentee Matching Form</h1> 
       <h2 className="form-heading">Section 1 - Basic Info</h2>
 
       {/* Email (floating label) */}
