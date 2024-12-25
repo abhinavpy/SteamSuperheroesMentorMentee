@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useContext(AuthContext);
+  const { login, isAuthenticated, isAdmin } = useContext(AuthContext);
 
   const [username, setUsername] = useState(""); // Username instead of email
   const [password, setPassword] = useState("");
@@ -16,9 +16,10 @@ const LoginForm = () => {
   // Redirect to Dashboard if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      if(isAdmin) navigate("/admin");
+      else navigate("/dashboard");
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isAdmin, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -27,8 +28,12 @@ const LoginForm = () => {
     const result = login(username, password);
 
     if (result.success) {
-      // Redirect to Dashboard
-      navigate("/dashboard");
+      // If login is successful, decide where to navigate
+      if (isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } else {
       // Display error message
       setError(result.message);

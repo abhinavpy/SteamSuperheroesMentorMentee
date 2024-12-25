@@ -61,6 +61,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import LoginForm from "./components/LoginForm";
 import Dashboard from "./components/Dashboard";
 import MultiStepForm from "./components/MultiStepForm";
+import AdminDashboard from "./components/AdminDashboard"; // New Admin Dashboard
 import { AuthProvider, AuthContext } from "./context/AuthContext";
 
 const App = () => {
@@ -75,11 +76,20 @@ const App = () => {
           <Route
             path="/dashboard"
             element={
-              <PrivateRoute>
+              <PrivateRoute adminOnly={false}>
                 <Dashboard />
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute adminOnly={true}>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          /> 
 
           <Route
             path="/form/*"
@@ -99,9 +109,15 @@ const App = () => {
 };
 
 // PrivateRoute component to protect routes
-const PrivateRoute = ({ children }) => {
-  const { isAuthenticated } = React.useContext(AuthContext);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+const PrivateRoute = ({ children, adminOnly }) => {
+  const { isAuthenticated, isAdmin } = React.useContext(AuthContext);
+  if(!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if(adminOnly && !isAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
 };
 
 export default App;

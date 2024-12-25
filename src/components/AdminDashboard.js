@@ -1,13 +1,13 @@
-// src/components/Dashboard.js
+// src/components/AdminDashboard.js
 
 import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styling/Dashboard.css";
+import "../styling/Dashboard.css"; // Reuse existing styles or create new ones as needed
 import { AuthContext } from "../context/AuthContext";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Import default styles
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
 
@@ -20,6 +20,14 @@ const Dashboard = () => {
     { date: new Date(2024, 0, 15), title: "Plan a trip" },
     { date: new Date(2024, 0, 20), title: "Return a package" },
   ];
+
+  const today = new Date();
+  const formattedDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   const handleNewMatching = () => {
     navigate("/form/section1");
@@ -42,26 +50,17 @@ const Dashboard = () => {
     // You can add additional logic here, e.g., fetching events for the selected date
   };
 
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString("en-US", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
       <aside className={`sidebar ${isSidebarVisible ? "visible" : "hidden"}`}>
-        <h2 className="sidebar-title">Mentee Dashboard</h2>
+        <h2 className="sidebar-title">Admin Dashboard</h2>
         <ul className="sidebar-menu">
           <li className="menu-item active">Dashboard</li>
-          <li className="menu-item">Sessions</li>
-          <li className="menu-item">My Mentors</li>
-          <li className="menu-item">Notes</li>
-          <li className="menu-item">Documents</li>
-          <li className="menu-item">Receipts</li>
+          <li className="menu-item">Manage Users</li>
+          <li className="menu-item">Form Management</li>
+          <li className="menu-item">Reports</li>
+          <li className="menu-item">Settings</li>
         </ul>
         <div className="sidebar-projects">
           <h3>Projects</h3>
@@ -74,7 +73,7 @@ const Dashboard = () => {
             </li>
           </ul>
           <button className="add-project-btn" onClick={handleNewMatching}>
-            + New Mentor-Mentee Matching
+            + View Mentor-Mentee Matching
           </button>
         </div>
         <div className="sidebar-footer">
@@ -97,7 +96,7 @@ const Dashboard = () => {
           </div>
           <div className="header-actions">
             <button className="new-project-btn" onClick={handleNewMatching}>
-              + New Mentor-Mentee Matching
+              + New Mentor Mentee Matching
             </button>
             <div className="profile">
               <img src="https://via.placeholder.com/30" alt="Profile" />
@@ -107,28 +106,28 @@ const Dashboard = () => {
 
         {/* Greeting Section */}
         <section className="greeting-section">
-        <p className="greeting-date">{formattedDate}</p>
-          <h1 className="greeting-title">Welcome, Mentee!</h1>
+          <p className="greeting-date">{formattedDate}</p>
+          <h1 className="greeting-title">Welcome, Admin!</h1>
           <div className="greeting-stats">
-          <div className="stat">
-              <span className="stat-icon">⏱</span>
+            <div className="stat">
+              <span className="stat-icon">📈</span>
               <div>
-                <p className="stat-value">12hrs</p>
-                <p className="stat-label">Time Saved</p>
+                <p className="stat-value">150</p>
+                <p className="stat-label">Active Users</p>
               </div>
             </div>
             <div className="stat">
-              <span className="stat-icon">✅</span>
+              <span className="stat-icon">🛠️</span>
               <div>
-                <p className="stat-value">24</p>
-                <p className="stat-label">Projects Completed</p>
+                <p className="stat-value">35</p>
+                <p className="stat-label">Projects Managed</p>
               </div>
             </div>
             <div className="stat">
-              <span className="stat-icon">⚙️</span>
+              <span className="stat-icon">📅</span>
               <div>
-                <p className="stat-value">7</p>
-                <p className="stat-label">Projects In-progress</p>
+                <p className="stat-value">12</p>
+                <p className="stat-label">Upcoming Events</p>
               </div>
             </div>
           </div>
@@ -136,44 +135,44 @@ const Dashboard = () => {
 
         {/* Meetings and Calendar Row */}
         <div className="dashboard-row">
-          {/* My Meetings Section */}
+          {/* Active Users Section */}
           <section className="projects-section">
             <header className="section-header">
-              <h2>My Meetings</h2>
-              <button>See All</button>
+              <h2>Active Users</h2>
+              <button>View All</button>
             </header>
             <table className="projects-table">
               <thead>
                 <tr>
-                  <th>Meeting Title</th>
-                  <th>Date & Time</th>
-                  <th>Assign</th>
+                  <th>Username</th>
+                  <th>Email</th>
+                  <th>Role</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Help DStudio get more customers</td>
-                  <td>Jan 12, 2024</td>
-                  <td>Phoenix Winters</td>
+                  <td>user1</td>
+                  <td>user1@example.com</td>
+                  <td>Mentee</td>
                   <td>
-                    <span className="status in-progress">In Progress</span>
+                    <span className="status active">Active</span>
                   </td>
                 </tr>
                 <tr>
-                  <td>Plan a trip</td>
-                  <td>Jan 15, 2024</td>
-                  <td>Cohen Merritt</td>
+                  <td>user2</td>
+                  <td>user2@example.com</td>
+                  <td>Mentee</td>
                   <td>
-                    <span className="status pending">Pending</span>
+                    <span className="status inactive">Inactive</span>
                   </td>
                 </tr>
                 <tr>
-                  <td>Return a package</td>
-                  <td>Jan 20, 2024</td>
-                  <td>Lukas Juarez</td>
+                  <td>user3</td>
+                  <td>user3@example.com</td>
+                  <td>Mentee</td>
                   <td>
-                    <span className="status completed">Completed</span>
+                    <span className="status active">Active</span>
                   </td>
                 </tr>
               </tbody>
@@ -183,7 +182,7 @@ const Dashboard = () => {
           {/* Calendar Section */}
           <section className="calendar-section">
             <header className="section-header">
-              <h2>My Calendar</h2>
+              <h2>Admin Calendar</h2>
             </header>
             <div className="calendar-container">
               <Calendar
@@ -210,4 +209,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
