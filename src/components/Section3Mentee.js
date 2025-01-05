@@ -9,6 +9,7 @@ import "../styling/Form.css";
 const GRADE_OPTIONS = [
   "5th grade",
   "6th grade",
+  "7th grade",
   "8th grade",
   "9th grade",
   "10th grade",

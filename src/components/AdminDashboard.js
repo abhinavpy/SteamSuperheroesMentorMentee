@@ -6,6 +6,8 @@ import "../styling/Dashboard.css"; // Reuse existing styles or create new ones a
 import { AuthContext } from "../context/AuthContext";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Import default styles
+import LeftSidebar from "../components/LeftSidebar"; // Import the LeftSidebar component
+
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -45,6 +47,56 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleManageForms = () => {
+    // Navigate to form management interface or open a modal
+    navigate("/admin/manage-forms"); // Example route
+  };
+
+  const handleViewMatchings = () => {
+    navigate("/admin/matchings"); // Route for Mentor-Mentee Matchings
+  };
+
+  // Define menu items for Admin Dashboard
+  const menuItems = [
+    { label: "Home", onClick: () => navigate("/admin") },
+    { label: "Manage Users", onClick: () => navigate("/admin/manage-users") },
+    { label: "View Reports", onClick: () => navigate("/admin/view-reports") },
+    { label: "System Logs", onClick: () => navigate("/admin/system-logs") },
+    { label: "Matchings", onClick: handleViewMatchings }, // New menu item
+  ];
+
+      // Define projects/tools for Admin Dashboard
+  const projects = {
+    title: "Admin Tools",
+    items: [
+      { name: "Role Assignments", color: "pink" },
+      { name: "Permissions Control", color: "green" },
+    ],
+    manageButtonLabel: "Manage Form Fields",
+  };
+
+    // Sample data for the overview table
+    const overviewItems = [
+        {
+          item: "Database Backup",
+          lastUpdate: "Dec 10, 2025",
+          manager: "System Admin",
+          status: "Completed",
+        },
+        {
+          item: "Role Assignment Update",
+          lastUpdate: "Dec 12, 2025",
+          manager: "John Admin",
+          status: "In Progress",
+        },
+        {
+          item: "Mentee Form Edits",
+          lastUpdate: "Dec 17, 2025",
+          manager: "AdminBot",
+          status: "Pending",
+        },
+      ];
+
   const onChangeCalendar = (date) => {
     setSelectedDate(date);
     // You can add additional logic here, e.g., fetching events for the selected date
@@ -53,7 +105,14 @@ const AdminDashboard = () => {
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <aside className={`sidebar ${isSidebarVisible ? "visible" : "hidden"}`}>
+      <LeftSidebar
+        title="Admin Dashboard"
+        menuItems={menuItems}
+        projects={projects}
+        onManageProjects={handleManageForms}
+        onLogout={handleLogout}
+      />
+      {/* <aside className={`sidebar ${isSidebarVisible ? "visible" : "hidden"}`}>
         <h2 className="sidebar-title">Admin Dashboard</h2>
         <ul className="sidebar-menu">
           <li className="menu-item active">Dashboard</li>
@@ -80,7 +139,7 @@ const AdminDashboard = () => {
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
           <p>Help & Support</p>
         </div>
-      </aside>
+      </aside> */}
 
       {/* Sidebar Toggle Button */}
       <button className="sidebar-toggle" onClick={toggleSidebar}>
@@ -203,6 +262,50 @@ const AdminDashboard = () => {
               />
             </div>
           </section>
+        </div>
+
+        <div className="dashboard-row">
+        {/* System Overview Section */}
+        <section className="projects-section">
+          <header className="section-header">
+            <h2>System Overview</h2>
+            <button onClick={() => navigate("/admin/system-logs")}>
+              See All Logs
+            </button>
+          </header>
+          <table className="projects-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Last Update</th>
+                <th>Manager</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {overviewItems.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.item}</td>
+                  <td>{item.lastUpdate}</td>
+                  <td>{item.manager}</td>
+                  <td>
+                    <span
+                      className={`status ${
+                        item.status === "Completed"
+                          ? "completed"
+                          : item.status === "In Progress"
+                          ? "in-progress"
+                          : "pending"
+                      }`}
+                    >
+                      {item.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
         </div>
       </main>
     </div>

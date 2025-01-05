@@ -2,7 +2,7 @@
 
 import React from "react";
 import PropTypes from "prop-types";
-import "./LeftSidebar.css"; // We'll create this CSS file next
+import "../styling/LeftSidebar.css"; // We'll create this CSS file next
 
 const LeftSidebar = ({
   title,

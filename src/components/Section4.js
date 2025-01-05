@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+// src/components/Section4.jsx
+
+import React from "react";
 import "../styling/Form.css";
 
 /**
@@ -24,9 +26,9 @@ const TIMESLOTS = [
   "7pm to 9pm",
 ];
 
-function Section4({ data, updateData, onSubmit }) {
+function Section4({ data, updateData, onSubmit, loading }) {
   // For user feedback if not enough checkboxes are selected
-  const [error, setError] = useState("");
+  const [error, setError] = React.useState("");
 
   /**
    * Handler for each checkbox in the grid.
@@ -131,8 +133,13 @@ function Section4({ data, updateData, onSubmit }) {
         </table>
       </div>
 
-      <button type="submit" className="form-button" style={{ marginTop: "20px" }}>
-        Submit
+      <button
+        type="submit"
+        className="form-button"
+        style={{ marginTop: "20px" }}
+        disabled={loading} // Disable button when loading
+      >
+        {loading ? "Submitting..." : "Submit"}
       </button>
     </form>
   );

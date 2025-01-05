@@ -10,6 +10,7 @@ import StepProgressBar from "./StepProgressBar";
 import { FaArrowLeft } from "react-icons/fa";
 import "../styling/Form.css"; // Assuming separate CSS
 import { AuthContext } from "../context/AuthContext";
+import { registerMentor, registerMentee } from "../api"; // Import API functions
 
 function MultiStepForm() {
   const [step, setStep] = useState(1);
@@ -49,6 +50,9 @@ function MultiStepForm() {
     // ====== Section 4 ======
     availability: [],
   });
+
+  const [loading, setLoading] = useState(false); // Loading state
+  const [error, setError] = useState(null); // Error state
 
   const totalSteps = 4;
   const stepLabels = ["Basic Info", "Mentor Profile", "Mentee Profile", "Calendar Availability"];
@@ -96,32 +100,94 @@ function MultiStepForm() {
   /**
    * Final submit in Section 4
    */
-  const handleSubmitFinal = () => {
-    // Perform final validations, or post data to an API, etc.
-    // For now, we'll generate and download the CSV
+  const handleSubmitFinal = async () => {
+    setLoading(true);
+    setError(null);
 
-    const csv = convertToCSV(formData);
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
+    try {
+      let response;
+      if (formData.role === "mentor") {
+        // Prepare mentor data
+        const mentorData = {
+          email: formData.email,
+          name: formData.name,
+          age_bracket: formData.ageBracket,
+          phone_number: formData.phoneNumber,
+          city: formData.city,
+          state: formData.state,
+          ethnicities: formData.ethnicities,
+          ethnicity_preference: formData.ethnicityPreference,
+          gender: formData.gender,
+          gender_preference: formData.genderPreference,
+          methods: formData.methods,
+          role: formData.role,
+          steamBackground: formData.steamBackground,
+          academicLevel: formData.academicLevel,
+          professionalTitle: formData.professionalTitle,
+          currentEmployer: formData.currentEmployer,
+          reasonsForMentoring: formData.reasonsForMentoring,
+          willingToAdvise: formData.willingToAdvise,
+        };
 
-    // Create a temporary link to trigger download
-    const link = document.createElement("a");
-    link.href = url;
-    link.setAttribute("download", "form_data.csv"); // Filename
+        // Send data to backend
+        response = await registerMentor(mentorData);
+      } else if (formData.role === "mentee") {
+        // Prepare mentee data
+        const menteeData = {
+          email: formData.email,
+          name: formData.name,
+          age_bracket: formData.ageBracket,
+          phone_number: formData.phoneNumber,
+          city: formData.city,
+          state: formData.state,
+          ethnicities: formData.ethnicities,
+          ethnicity_preference: formData.ethnicityPreference,
+          gender: formData.gender,
+          gender_preference: formData.genderPreference,
+          methods: formData.methods,
+          role: formData.role,
+          grade: formData.grade,
+          reasons_for_mentoring: formData.reasonsForMentor,
+          interests: formData.interests,
+          availability: formData.availability,
+        };
 
-    // Append to the document and trigger click
-    document.body.appendChild(link);
-    link.click();
+        // Include "Other" reasons if provided
+        if (formData.reasonsForMentor.includes("Other…")) {
+          menteeData.reasons_for_mentoring = [
+            ...menteeData.reasons_for_mentoring,
+            formData.reasonsForMentorOther,
+          ];
+        }
 
-    // Clean up
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+        // Include "Other" interests if provided
+        if (formData.interests.includes("Other…")) {
+          menteeData.interests = [
+            ...menteeData.interests,
+            formData.interestsOther,
+          ];
+        }
 
-    // Optionally, notify the user and logout or reset form
-    alert("Form submitted successfully! Your data has been downloaded as form_data.csv.");
-    console.log("Final Form Data:", formData);
-    logout(); // Log out after submission
-    navigate("/login"); // Redirect to login
+        // Send data to backend
+        response = await registerMentee(menteeData);
+      } else {
+        throw new Error("Invalid role selected.");
+      }
+
+      // Handle successful registration
+      console.log("Registration successful:", response.data);
+
+      // Optionally, create a matching here or have an admin do it later
+      // For example, you can navigate to a confirmation page
+      alert("Form submitted successfully! Your data has been uploaded.");
+      logout(); // Log out after submission
+      navigate("/login"); // Redirect to login
+    } catch (err) {
+      console.error("Error submitting form:", err);
+      setError(err.response?.data?.detail || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   /**
@@ -210,6 +276,9 @@ function MultiStepForm() {
         </button>
       )}
 
+      {/* Display error message if any */}
+      {error && <div className="error-message">{error}</div>}
+
       {/* Nested Routes for Each Section */}
       <Routes>
         <Route
@@ -252,7 +321,14 @@ function MultiStepForm() {
         />
         <Route
           path="section4"
-          element={<Section4 data={formData} updateData={updateFormData} onSubmit={handleSubmitFinal} />}
+          element={
+            <Section4
+              data={formData}
+              updateData={updateFormData}
+              onSubmit={handleSubmitFinal}
+              loading={loading} // Pass loading state
+            />
+          }
         />
         {/* Redirect /form to /form/section1 */}
         <Route path="/" element={<Navigate to="section1" replace />} />

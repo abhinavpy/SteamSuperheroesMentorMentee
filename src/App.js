@@ -63,6 +63,7 @@ import Dashboard from "./components/Dashboard";
 import MultiStepForm from "./components/MultiStepForm";
 import AdminDashboard from "./components/AdminDashboard"; // New Admin Dashboard
 import { AuthProvider, AuthContext } from "./context/AuthContext";
+import MentorMenteeMatchings from "./components/MentorMenteeMatchings.js"; // New Component
 
 const App = () => {
   return (
@@ -90,6 +91,16 @@ const App = () => {
               </PrivateRoute>
             }
           /> 
+
+          {/* Mentor-Mentee Matchings (Protected Admin Only) */}
+          <Route
+            path="/admin/matchings"
+            element={
+              <PrivateRoute adminOnly={true}>
+                <MentorMenteeMatchings />
+              </PrivateRoute>
+            }
+          />
 
           <Route
             path="/form/*"

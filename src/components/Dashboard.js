@@ -6,6 +6,7 @@ import "../styling/Dashboard.css";
 import { AuthContext } from "../context/AuthContext";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Import default styles
+import LeftSidebar from "./LeftSidebar"; // Import the LeftSidebar component
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -50,10 +51,42 @@ const Dashboard = () => {
     year: "numeric",
   });
 
+  // Define menu items for Mentee Dashboard
+  const menuItems = [
+    { label: "Dashboard", active: true },
+    { label: "Sessions", active: false },
+    { label: "My Mentors", active: false },
+    { label: "Notes", active: false },
+    { label: "Documents", active: false },
+    { label: "Receipts", active: false },
+  ];
+
+  // Define projects/tools for Mentee Dashboard
+  const projects = {
+    title: "Projects",
+    items: [
+      { name: "Event Planning", color: "pink" },
+      { name: "Breakfast Plan", color: "green" },
+    ],
+    manageButtonLabel: "New Mentor-Mentee Matching",
+  };
+
   return (
     <div className="dashboard-container">
       {/* Sidebar */}
-      <aside className={`sidebar ${isSidebarVisible ? "visible" : "hidden"}`}>
+      <LeftSidebar
+        title="Mentee Dashboard"
+        menuItems={menuItems}
+        projects={projects}
+        onManageProjects={handleNewMatching}
+        onLogout={handleLogout}
+      />
+      {/* Sidebar Toggle Button */}
+      <button className="sidebar-toggle" onClick={() => {}}>
+        {/* Implement toggle functionality if needed */}
+        ☰
+      </button>
+      {/* <aside className={`sidebar ${isSidebarVisible ? "visible" : "hidden"}`}>
         <h2 className="sidebar-title">Mentee Dashboard</h2>
         <ul className="sidebar-menu">
           <li className="menu-item active">Dashboard</li>
@@ -81,7 +114,7 @@ const Dashboard = () => {
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
           <p>Help & Support</p>
         </div>
-      </aside>
+      </aside> */}
 
       {/* Sidebar Toggle Button */}
       <button className="sidebar-toggle" onClick={toggleSidebar}>
