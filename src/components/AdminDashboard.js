@@ -36,6 +36,31 @@ const AdminDashboard = () => {
     setIsSidebarVisible(false); // Hide sidebar after navigation on mobile
   };
 
+  async function handleDoMatching() {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/matching/do", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(`Error: ${errorData.detail}`);
+        return;
+      }
+      const data = await response.json();
+      console.log("Matching result:", data);
+      // data.matched_pairs is an array of matched pairs
+      // e.g. [ { mentor_name: ..., mentee_name: ..., match_date: ... }, ... ]
+      // Display the table in your UI
+      navigate("/admin/matchings");
+    } catch (error) {
+      console.error("Error performing matching:", error);
+    }
+  }
+  
+
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
@@ -156,6 +181,9 @@ const AdminDashboard = () => {
           <div className="header-actions">
             <button className="new-project-btn" onClick={handleNewMatching}>
               + New Mentor Mentee Matching
+            </button>
+            <button className="new-project-btn" onClick={handleDoMatching}>
+              + Perform Matching
             </button>
             <div className="profile">
               <img src="https://via.placeholder.com/30" alt="Profile" />

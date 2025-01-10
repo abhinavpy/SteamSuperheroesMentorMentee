@@ -1,102 +1,91 @@
 // src/components/MentorMenteeMatchings.jsx
-
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import "../styling/MentorMenteeMatchings.css";
 
 const MentorMenteeMatchings = () => {
-  // Dummy data for mentor-mentee matchings
-  const matchingsData = [
-    {
-      id: 1,
-      mentorName: "Alice Johnson",
-      mentorEmail: "alice.johnson@example.com",
-      menteeName: "Bob Smith",
-      menteeEmail: "bob.smith@example.com",
-      matchDate: "January 10, 2024",
-      status: "Active",
-    },
-    {
-      id: 2,
-      mentorName: "Charles Lee",
-      mentorEmail: "charles.lee@example.com",
-      menteeName: "Diana Prince",
-      menteeEmail: "diana.prince@example.com",
-      matchDate: "January 15, 2024",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      mentorName: "Evelyn Garcia",
-      mentorEmail: "evelyn.garcia@example.com",
-      menteeName: "Frank Miller",
-      menteeEmail: "frank.miller@example.com",
-      matchDate: "January 20, 2024",
-      status: "Completed",
-    },
-    // Add more dummy data as needed
-    {
-      id: 4,
-      mentorName: "George Wilson",
-      mentorEmail: "george.wilson@example.com",
-      menteeName: "Hannah Brown",
-      menteeEmail: "hannah.brown@example.com",
-      matchDate: "January 22, 2024",
-      status: "Active",
-    },
-    {
-      id: 5,
-      mentorName: "Isabella Martinez",
-      mentorEmail: "isabella.martinez@example.com",
-      menteeName: "Jack Davis",
-      menteeEmail: "jack.davis@example.com",
-      matchDate: "January 25, 2024",
-      status: "Pending",
-    },
-    // ... more data
-  ];
+  // React state to store matchings data fetched from the backend
+  const [matchingsData, setMatchingsData] = useState([]);
 
-  // State variables for search, filter, sorting, and pagination
+  // States for search, filter, sorting, pagination
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Adjust as needed
+  const itemsPerPage = 5;
 
-  // Function to handle sorting
+  /* ------------------------------- useEffect ------------------------------ */
+  useEffect(() => {
+    console.log("MentorMenteeMatchings component mounted. Fetching data...");
+
+    const fetchMatchings = async () => {
+      try {
+        console.log("Attempting to fetch matchings from /api/matchings...");
+        const response = await fetch("http://127.0.0.1:8000/api/matchings");
+        if (!response.ok) {
+          throw new Error("Failed to fetch matchings.");
+        }
+        const data = await response.json();
+
+        console.log("Raw data received from API:", data);
+
+        // data should be an array of matchings
+        setMatchingsData(data);
+        console.log("matchingsData state updated with fetched data.");
+      } catch (error) {
+        console.error("Error fetching matchings:", error);
+      }
+    };
+
+    fetchMatchings();
+  }, []);
+  // ----------------------------------------------------------------------
+
+  /* ------------------------------- handleSort ------------------------------ */
   const handleSort = (key) => {
+    console.log(`Sorting by key='${key}'`);
     let direction = "ascending";
-    if (
-      sortConfig.key === key &&
-      sortConfig.direction === "ascending"
-    ) {
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
       direction = "descending";
     }
     setSortConfig({ key, direction });
   };
+  // ----------------------------------------------------------------------
 
-  // Function to get sorted data
+  /* ---------------------------- sortedMatchings --------------------------- */
   const sortedMatchings = useMemo(() => {
+    console.log("Calculating sortedMatchings...");
     let sortableMatchings = [...matchingsData];
 
-    // Search Filtering
+    // Log the entire matchingsData array for debugging
+    console.log("Current matchingsData in sortedMatchings:", matchingsData);
+
+    // SEARCH filtering
     if (searchTerm) {
-      sortableMatchings = sortableMatchings.filter(
-        (matching) =>
-          matching.mentorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          matching.menteeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          matching.status.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      console.log(`Filtering by searchTerm='${searchTerm}'`);
+      sortableMatchings = sortableMatchings.filter((matching) => {
+        // Log each matching's fields for clarity
+        console.log("Evaluating matching:", matching);
+        return (
+          matching.mentor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          matching.mentee_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          matching.status?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      });
     }
 
-    // Status Filtering
+    // STATUS filtering
     if (filterStatus !== "All") {
+      console.log(`Filtering by status='${filterStatus}'`);
       sortableMatchings = sortableMatchings.filter(
         (matching) => matching.status === filterStatus
       );
     }
 
-    // Sorting
+    // SORTING
     if (sortConfig.key) {
+      console.log(
+        `Sorting by '${sortConfig.key}' in '${sortConfig.direction}' order.`
+      );
       sortableMatchings.sort((a, b) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
@@ -111,41 +100,51 @@ const MentorMenteeMatchings = () => {
       });
     }
 
+    console.log("sortableMatchings after search/filter/sort:", sortableMatchings);
     return sortableMatchings;
   }, [matchingsData, sortConfig, searchTerm, filterStatus]);
 
-  // Pagination Calculations
+  /* -------------------------- Pagination Logic ---------------------------- */
   const totalPages = Math.ceil(sortedMatchings.length / itemsPerPage);
   const paginatedMatchings = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return sortedMatchings.slice(startIndex, startIndex + itemsPerPage);
-  }, [sortedMatchings, currentPage, itemsPerPage]);
+    const endIndex = startIndex + itemsPerPage;
+    const result = sortedMatchings.slice(startIndex, endIndex);
 
-  // Function to handle page change
+    console.log(
+      `Paginating from index ${startIndex} to ${endIndex}, total pages=${totalPages}, currentPage=${currentPage}`
+    );
+    console.log("paginatedMatchings:", result);
+
+    return result;
+  }, [sortedMatchings, currentPage, itemsPerPage, totalPages]);
+
+  /* -------------------------- handlePageChange --------------------------- */
   const handlePageChange = (pageNumber) => {
+    console.log(`Changing page to ${pageNumber}`);
     setCurrentPage(pageNumber);
   };
 
-  // Function to reset to first page when filters change
+  /* --------------------- handleSearch & handleFilter --------------------- */
   const resetToFirstPage = () => {
     setCurrentPage(1);
   };
 
-  // Handle Search Input Change
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     resetToFirstPage();
   };
 
-  // Handle Filter Change
   const handleFilterChange = (e) => {
     setFilterStatus(e.target.value);
     resetToFirstPage();
   };
 
-  // Define unique statuses for filter dropdown
+  /* --------------------------- uniqueStatuses ---------------------------- */
   const uniqueStatuses = ["All", ...new Set(matchingsData.map((m) => m.status))];
+  console.log("uniqueStatuses:", uniqueStatuses);
 
+  /* ------------------------------ Rendering ------------------------------ */
   return (
     <div className="matchings-container">
       <h2 className="matchings-title">Mentor-Mentee Matchings</h2>
@@ -178,39 +177,39 @@ const MentorMenteeMatchings = () => {
         <table className="matchings-table">
           <thead>
             <tr>
-              <th onClick={() => handleSort("id")}>
+              <th onClick={() => handleSort("matching_id")}>
                 ID
-                {sortConfig.key === "id" ? (
+                {sortConfig.key === "matching_id" ? (
                   sortConfig.direction === "ascending" ? " 🔼" : " 🔽"
                 ) : null}
               </th>
-              <th onClick={() => handleSort("mentorName")}>
+              <th onClick={() => handleSort("mentor_name")}>
                 Mentor Name
-                {sortConfig.key === "mentorName" ? (
+                {sortConfig.key === "mentor_name" ? (
                   sortConfig.direction === "ascending" ? " 🔼" : " 🔽"
                 ) : null}
               </th>
-              <th onClick={() => handleSort("mentorEmail")}>
+              <th onClick={() => handleSort("mentor_email")}>
                 Mentor Email
-                {sortConfig.key === "mentorEmail" ? (
+                {sortConfig.key === "mentor_email" ? (
                   sortConfig.direction === "ascending" ? " 🔼" : " 🔽"
                 ) : null}
               </th>
-              <th onClick={() => handleSort("menteeName")}>
+              <th onClick={() => handleSort("mentee_name")}>
                 Mentee Name
-                {sortConfig.key === "menteeName" ? (
+                {sortConfig.key === "mentee_name" ? (
                   sortConfig.direction === "ascending" ? " 🔼" : " 🔽"
                 ) : null}
               </th>
-              <th onClick={() => handleSort("menteeEmail")}>
+              <th onClick={() => handleSort("mentee_email")}>
                 Mentee Email
-                {sortConfig.key === "menteeEmail" ? (
+                {sortConfig.key === "mentee_email" ? (
                   sortConfig.direction === "ascending" ? " 🔼" : " 🔽"
                 ) : null}
               </th>
-              <th onClick={() => handleSort("matchDate")}>
+              <th onClick={() => handleSort("match_date")}>
                 Match Date
-                {sortConfig.key === "matchDate" ? (
+                {sortConfig.key === "match_date" ? (
                   sortConfig.direction === "ascending" ? " 🔼" : " 🔽"
                 ) : null}
               </th>
@@ -224,25 +223,35 @@ const MentorMenteeMatchings = () => {
           </thead>
           <tbody>
             {paginatedMatchings.length > 0 ? (
-              paginatedMatchings.map((matching) => (
-                <tr key={matching.id}>
-                  <td>{matching.id}</td>
-                  <td>{matching.mentorName}</td>
-                  <td>{matching.mentorEmail}</td>
-                  <td>{matching.menteeName}</td>
-                  <td>{matching.menteeEmail}</td>
-                  <td>{matching.matchDate}</td>
-                  <td>
-                    <span
-                      className={`status ${
-                        matching.status.toLowerCase().replace(" ", "-")
-                      }`}
-                    >
-                      {matching.status}
-                    </span>
-                  </td>
-                </tr>
-              ))
+              paginatedMatchings.map((matching, idx) => {
+                // Log each matching row for debugging
+                console.log(
+                  `Rendering row ${idx + 1}/${paginatedMatchings.length}: `,
+                  matching
+                );
+
+                return (
+                  <tr key={matching.matching_id}>
+                    <td>{matching.matching_id}</td>
+                    <td>{matching.mentor_name}</td>
+                    <td>{matching.mentor_email}</td>
+                    <td>{matching.mentee_name}</td>
+                    <td>{matching.mentee_email}</td>
+                    <td>{matching.matching_date}</td>
+                    <td>
+                      <span
+                        className={`status ${
+                          matching.status
+                            ?.toLowerCase()
+                            .replace(" ", "-") || ""
+                        }`}
+                      >
+                        {matching.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td colSpan="7" className="no-data">
