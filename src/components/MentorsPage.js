@@ -1,16 +1,98 @@
-import React, { useState, useMemo, useEffect } from "react";
-import "../styling/MentorMenteeMatchings.css"; // Reuse styling
+// src/pages/MentorsPage.jsx
+import React, { useState, useEffect, useMemo } from "react";
+import "../styling/ExpandableList.css"; // Import the teal styling
+
+// ====== Example Mappings for Numeric IDs ======
+// Adjust these to match your actual IDs and labels
+
+// 1) Age Brackets
+const AGE_BRACKET_LABELS = {
+  1: "9-13",
+  2: "13-18",
+  3: "18-22",
+  4: "22-30",
+  5: "30-40",
+  6: "40-50",
+  7: "50-60",
+  8: "60+",
+};
+
+// 2) Ethnicity
+const ETHNICITY_LABELS = {
+  1: "American Indian or Alaska Native",
+  2: "Asian",
+  3: "South Asian",
+  4: "Black or African American",
+  5: "Hispanic or Latino",
+  6: "Middle Eastern or North African",
+  7: "Native Hawaiian or Pacific Islander",
+  8: "White or European",
+  9: "Other…",
+};
+
+// 3) Gender
+const GENDER_LABELS = {
+  1: "Cisgender Male",
+  2: "Cisgender Female",
+  3: "Transgender Male",
+  4: "Transgender Female",
+  5: "Prefer not to disclose",
+  6: "Other…",
+};
+
+// 4) Session Preferences
+const SESSION_PREF_LABELS = {
+  1: "Homework Help",
+  2: "Exposure to STEAM in general",
+  3: "College guidance",
+  4: "Career guidance",
+  5: "Explore a particular field",
+  6: "Other: text",
+};
+
+// 5) STEAM Background
+const STEAM_BACKGROUND_LABELS = {
+  1: "Professional",
+  2: "Student",
+  // add if you have more
+};
+
+// 6) Academic Level
+const ACADEMIC_LEVEL_LABELS = {
+  1: "High School Freshman",
+  2: "High School Sophomore",
+  3: "High School Junior",
+  4: "High School Senior",
+  5: "College Undergraduate",
+  6: "Graduate School",
+  7: "Graduated / Working Professional",
+};
+
+// 7) Reasons for Mentoring
+const REASONS_MENTORING_LABELS = {
+  1: "Give back to community",
+  2: "Volunteer hours",
+  3: "Other",
+};
 
 function MentorsPage() {
-  const [mentorsData, setMentorsData] = useState([]);
+  const [mentors, setMentors] = useState([]);
+  const [expandedRowId, setExpandedRowId] = useState(null);
 
-  // For sorting, searching, pagination
+  // Editing states
+  const [editRowId, setEditRowId] = useState(null);
+  const [editFields, setEditFields] = useState({
+    email: "",
+    phone_number: "",
+    city: "",
+  });
+
+  // Search/pagination
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5; // Adjust as needed
+  const itemsPerPage = 5;
 
-  // 1) Fetch mentors from backend
+  // ====== Fetch Mentors ======
   useEffect(() => {
     const fetchMentors = async () => {
       try {
@@ -19,145 +101,330 @@ function MentorsPage() {
           throw new Error("Failed to fetch mentors.");
         }
         const data = await response.json();
-        setMentorsData(data);
-      } catch (error) {
-        console.error("Error fetching mentors:", error);
+        setMentors(data);
+      } catch (err) {
+        console.error("Error fetching mentors:", err);
       }
     };
     fetchMentors();
   }, []);
 
-  // 2) Sorting logic
-  const handleSort = (key) => {
-    let direction = "ascending";
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
-  };
+  // ====== Filter by Search ======
+  const filteredMentors = useMemo(() => {
+    const lower = searchTerm.toLowerCase();
+    return mentors.filter((m) =>
+      [m.name, m.email, m.phone_number, m.city, m.state]
+        .map((val) => val?.toString().toLowerCase() || "")
+        .some((field) => field.includes(lower))
+    );
+  }, [mentors, searchTerm]);
 
-  // 3) Build a sorted list (with optional searching)
-  const sortedMentors = useMemo(() => {
-    let sortable = [...mentorsData];
-
-    // Basic search by name, email, phone_number, etc.
-    if (searchTerm) {
-      const lowerSearch = searchTerm.toLowerCase();
-      sortable = sortable.filter((mentor) =>
-        mentor.name?.toLowerCase().includes(lowerSearch) ||
-        mentor.email?.toLowerCase().includes(lowerSearch) ||
-        mentor.phone_number?.toLowerCase().includes(lowerSearch) ||
-        mentor.city?.toLowerCase().includes(lowerSearch) ||
-        mentor.state?.toLowerCase().includes(lowerSearch)
-      );
-    }
-
-    // Sorting
-    if (sortConfig.key) {
-      sortable.sort((a, b) => {
-        const aVal = a[sortConfig.key];
-        const bVal = b[sortConfig.key];
-        if (aVal < bVal) return sortConfig.direction === "ascending" ? -1 : 1;
-        if (aVal > bVal) return sortConfig.direction === "ascending" ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return sortable;
-  }, [mentorsData, searchTerm, sortConfig]);
-
-  // 4) Pagination
-  const totalPages = Math.ceil(sortedMentors.length / itemsPerPage);
+  // ====== Pagination ======
+  const totalPages = Math.ceil(filteredMentors.length / itemsPerPage);
   const paginatedMentors = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return sortedMentors.slice(startIndex, startIndex + itemsPerPage);
-  }, [sortedMentors, currentPage, itemsPerPage]);
+    return filteredMentors.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredMentors, currentPage, itemsPerPage]);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
-  // 5) Searching & UI
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+  // ====== Expand/Collapse Row ======
+  const toggleExpand = (mentorId) => {
+    setExpandedRowId((prev) => (prev === mentorId ? null : mentorId));
+    // Cancel editing if we expand a new row
+    setEditRowId(null);
   };
 
-  // 6) Render
-  return (
-    <div className="matchings-container">
-      <h2 className="matchings-title">All Mentors</h2>
+  // ====== Editing Handlers ======
+  const handleEditClick = (mentor) => {
+    setEditRowId(mentor.mentor_id);
+    setEditFields({
+      email: mentor.email || "",
+      phone_number: mentor.phone_number || "",
+      city: mentor.city || "",
+    });
+  };
 
-      {/* Search input */}
-      <div className="controls">
+  const handleCancelClick = () => {
+    setEditRowId(null);
+  };
+
+  const handleSaveClick = async (mentorId) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/admin/mentors/${mentorId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: editFields.email,
+            phone_number: editFields.phone_number,
+            city: editFields.city,
+          }),
+        }
+      );
+      if (!response.ok) throw new Error("Failed to update mentor.");
+
+      await response.json();
+      // Update local state
+      setMentors((prev) =>
+        prev.map((m) =>
+          m.mentor_id === mentorId
+            ? {
+                ...m,
+                email: editFields.email,
+                phone_number: editFields.phone_number,
+                city: editFields.city,
+              }
+            : m
+        )
+      );
+      setEditRowId(null);
+    } catch (err) {
+      console.error("Error updating mentor:", err);
+      alert("Error updating mentor. Check console.");
+    }
+  };
+
+  // ====== Delete ======
+  const handleDeleteClick = async (mentor) => {
+    if (!window.confirm(`Are you sure you want to delete ${mentor.name}?`)) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/admin/mentors/${mentor.mentor_id}`,
+        { method: "DELETE" }
+      );
+      if (!response.ok) throw new Error("Failed to delete mentor.");
+      await response.json();
+      setMentors((prev) => prev.filter((m) => m.mentor_id !== mentor.mentor_id));
+    } catch (err) {
+      console.error("Error deleting mentor:", err);
+      alert("Error deleting mentor. See console for details.");
+    }
+  };
+
+  // ====== Rendering Helpers ======
+  const renderAgeBracket = (num) => {
+    if (!num) return "";
+    return AGE_BRACKET_LABELS[num] || `Unknown #${num}`;
+  };
+  const renderEthnicities = (arr) => {
+    if (!arr?.length) return "";
+    return arr
+      .map((id) => ETHNICITY_LABELS[id] || `Unknown #${id}`)
+      .join(", ");
+  };
+  const renderGenders = (arr) => {
+    if (!arr?.length) return "";
+    return arr
+      .map((id) => GENDER_LABELS[id] || `Unknown #${id}`)
+      .join(", ");
+  };
+  const renderSessionPrefs = (arr) => {
+    if (!arr?.length) return "";
+    return arr
+      .map((id) => SESSION_PREF_LABELS[id] || `Unknown #${id}`)
+      .join(", ");
+  };
+  const renderSteamBackground = (num) => {
+    if (!num) return "";
+    return STEAM_BACKGROUND_LABELS[num] || `Unknown #${num}`;
+  };
+  const renderAcademicLevel = (num) => {
+    if (!num) return "";
+    return ACADEMIC_LEVEL_LABELS[num] || `Unknown #${num}`;
+  };
+  const renderReasonsMentoring = (num) => {
+    if (!num) return "";
+    return REASONS_MENTORING_LABELS[num] || `Unknown #${num}`;
+  };
+
+  return (
+    <div className="expandable-list-container">
+      <h2 className="expandable-list-title">Mentors (Teal Expandable UI)</h2>
+
+      <div className="list-controls">
         <input
           type="text"
-          placeholder="Search by Name, Email, Phone, City, or State"
+          placeholder="Search..."
           value={searchTerm}
-          onChange={handleSearchChange}
-          className="search-input"
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
         />
       </div>
 
-      {/* Table with ALL fields */}
-      <div className="table-container">
-        <table className="matchings-table">
-          <thead>
-            <tr>
-              {/* We'll have a column for each field you mentioned */}
-              <th onClick={() => handleSort("mentor_id")}>mentor_id</th>
-              <th onClick={() => handleSort("name")}>name</th>
-              <th onClick={() => handleSort("email")}>email</th>
-              <th onClick={() => handleSort("phone_number")}>phone_number</th>
-              <th onClick={() => handleSort("role")}>role</th>
-              <th onClick={() => handleSort("age_bracket")}>age_bracket</th>
-              <th onClick={() => handleSort("steam_background")}>steam_background</th>
-              <th onClick={() => handleSort("created_at")}>created_at</th>
-              <th onClick={() => handleSort("current_employer")}>current_employer</th>
-              <th onClick={() => handleSort("ethnicity_preference")}>ethnicity_preference</th>
-              <th onClick={() => handleSort("gender_preference")}>gender_preference</th>
-              <th onClick={() => handleSort("academic_level")}>academic_level</th>
-              <th onClick={() => handleSort("willing_to_advise")}>willing_to_advise</th>
-              <th onClick={() => handleSort("reasons_for_mentoring")}>reasons_for_mentoring</th>
-              <th onClick={() => handleSort("state")}>state</th>
-              <th onClick={() => handleSort("city")}>city</th>
-              {/* For arrays like ethnicities, methods, gender... We'll just display them. */}
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedMentors.length > 0 ? (
-              paginatedMentors.map((mentor, idx) => {
-                return (
-                  <tr key={mentor.mentor_id || idx}>
-                    <td>{mentor.mentor_id}</td>
-                    <td>{mentor.name}</td>
-                    <td>{mentor.email}</td>
-                    <td>{mentor.phone_number}</td>
-                    <td>{mentor.role}</td>
-                    <td>{mentor.age_bracket}</td>
-                    <td>{mentor.steam_background}</td>
-                    <td>{mentor.created_at}</td>
-                    <td>{mentor.current_employer}</td>
-                    <td>{mentor.ethnicity_preference}</td>
-                    <td>{mentor.gender_preference}</td>
-                    <td>{mentor.academic_level}</td>
-                    <td>{mentor.willing_to_advise}</td>
-                    <td>{mentor.reasons_for_mentoring}</td>
-                    <td>{mentor.state}</td>
-                    <td>{mentor.city}</td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="16" className="no-data">
-                  No mentors found.
-                </td>
-              </tr>
+      {paginatedMentors.map((mentor) => {
+        const isExpanded = mentor.mentor_id === expandedRowId;
+        const isEditing = mentor.mentor_id === editRowId;
+
+        return (
+          <div className="expandable-item" key={mentor.mentor_id}>
+            <div
+              className="expandable-header"
+              onClick={() => toggleExpand(mentor.mentor_id)}
+            >
+              <div className="expandable-header-left">
+                <div>{mentor.name}</div>
+                <div style={{ fontSize: "0.9rem", color: "#666" }}>
+                  {mentor.email} - {mentor.city}
+                </div>
+              </div>
+              <div className="expandable-header-right">
+                <span>{isExpanded ? "▼" : "▶"}</span>
+              </div>
+            </div>
+
+            {isExpanded && (
+              <div className="expandable-content">
+                {isEditing ? (
+                  <div className="expandable-content-fields">
+                    <div>
+                      <div className="field-label">Email:</div>
+                      <input
+                        type="text"
+                        value={editFields.email}
+                        onChange={(e) =>
+                          setEditFields({
+                            ...editFields,
+                            email: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <div className="field-label">Phone:</div>
+                      <input
+                        type="text"
+                        value={editFields.phone_number}
+                        onChange={(e) =>
+                          setEditFields({
+                            ...editFields,
+                            phone_number: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <div className="field-label">City:</div>
+                      <input
+                        type="text"
+                        value={editFields.city}
+                        onChange={(e) =>
+                          setEditFields({ ...editFields, city: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="expandable-content-fields">
+                    {/* Basic Info */}
+                    <div>
+                      <div className="field-label">Email:</div>
+                      <div className="field-value">{mentor.email}</div>
+                    </div>
+                    <div>
+                      <div className="field-label">Phone:</div>
+                      <div className="field-value">{mentor.phone_number}</div>
+                    </div>
+                    <div>
+                      <div className="field-label">City:</div>
+                      <div className="field-value">{mentor.city}</div>
+                    </div>
+                    <div>
+                      <div className="field-label">State:</div>
+                      <div className="field-value">{mentor.state}</div>
+                    </div>
+                    <div>
+                      <div className="field-label">Age Bracket:</div>
+                      <div className="field-value">
+                        {renderAgeBracket(mentor.age_bracket)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Ethnicities:</div>
+                      <div className="field-value">
+                        {renderEthnicities(mentor.ethnicities)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Gender:</div>
+                      <div className="field-value">
+                        {renderGenders(mentor.gender)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Session Preferences:</div>
+                      <div className="field-value">
+                        {renderSessionPrefs(mentor.session_preferences)}
+                      </div>
+                    </div>
+
+                    {/* Mentor-Specific Fields */}
+                    <div>
+                      <div className="field-label">STEAM Background:</div>
+                      <div className="field-value">
+                        {renderSteamBackground(mentor.steam_background)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Academic Level:</div>
+                      <div className="field-value">
+                        {renderAcademicLevel(mentor.academic_level)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Professional Title:</div>
+                      <div className="field-value">
+                        {mentor.professional_title || ""}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Current Employer:</div>
+                      <div className="field-value">
+                        {mentor.current_employer || ""}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Reasons for Mentoring:</div>
+                      <div className="field-value">
+                        {renderReasonsMentoring(mentor.reasons_for_mentoring)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="field-label">Willing to Advise:</div>
+                      <div className="field-value">
+                        {mentor.willing_to_advise ?? ""}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="expandable-actions">
+                  {isEditing ? (
+                    <>
+                      <button onClick={() => handleSaveClick(mentor.mentor_id)}>
+                        Save
+                      </button>
+                      <button onClick={handleCancelClick}>Cancel</button>
+                    </>
+                  ) : (
+                    <>
+                      <button onClick={() => handleEditClick(mentor)}>Edit</button>
+                      <button onClick={() => handleDeleteClick(mentor)}>Delete</button>
+                    </>
+                  )}
+                </div>
+              </div>
             )}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        );
+      })}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -165,27 +432,21 @@ function MentorsPage() {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="pagination-btn"
           >
-            Previous
+            Prev
           </button>
-          {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-            (pageNumber) => (
-              <button
-                key={pageNumber}
-                onClick={() => handlePageChange(pageNumber)}
-                className={`pagination-btn ${
-                  currentPage === pageNumber ? "active" : ""
-                }`}
-              >
-                {pageNumber}
-              </button>
-            )
-          )}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              className={page === currentPage ? "active" : ""}
+            >
+              {page}
+            </button>
+          ))}
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="pagination-btn"
           >
             Next
           </button>

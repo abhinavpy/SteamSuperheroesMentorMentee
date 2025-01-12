@@ -2,38 +2,59 @@ import React from "react";
 import "../styling/Form.css";
 
 /**
- * If you like, define or import constants for the multiple-choice options.
- * This keeps the JSX cleaner. Example:
+ * Numeric-keyed STEAM background radio options
  */
-const STEAM_BACKGROUND_OPTIONS = ["Professional", "Student"];
-
-const ACADEMIC_LEVEL_OPTIONS = [
-  "High School Freshman",
-  "High School Sophomore",
-  "High School Junior",
-  "High School Senior",
-  "College Undergraduate",
-  "Graduate School",
-  "Graduated / Working Professional",
+const STEAM_BACKGROUND_OPTIONS = [
+  { id: 1, label: "Professional" },
+  { id: 2, label: "Student" },
 ];
 
+/**
+ * Numeric-keyed academic level radio options
+ */
+const ACADEMIC_LEVEL_OPTIONS = [
+  { id: 1, label: "High School Freshman" },
+  { id: 2, label: "High School Sophomore" },
+  { id: 3, label: "High School Junior" },
+  { id: 4, label: "High School Senior" },
+  { id: 5, label: "College Undergraduate" },
+  { id: 6, label: "Graduate School" },
+  { id: 7, label: "Graduated / Working Professional" },
+];
+
+/**
+ * Numeric-keyed reasons for mentoring (radio)
+ */
 const REASONS_FOR_MENTORING_OPTIONS = [
-  "Give back to community",
-  "Volunteer hours",
-  "Other",
+  { id: 1, label: "Give back to community" },
+  { id: 2, label: "Volunteer hours" },
+  { id: 3, label: "Other" },
 ];
 
 function Section2Mentor({ data, updateData, onNext }) {
-  // Generic text or radio/checkbox changes
+  /**
+   * Handler for text or numeric fields.
+   * For radio fields, we parseInt the value (which is stored as a numeric ID).
+   */
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    updateData({ [name]: value });
+    const { name, value, type } = e.target;
+
+    // If it's a radio for numeric keys (steamBackground, academicLevel, reasonsForMentoring),
+    // we parse to int. Otherwise, store string or number as is.
+    if (type === "radio") {
+      const numericVal = parseInt(value, 10);
+      updateData({ [name]: numericVal });
+    } else {
+      updateData({ [name]: value });
+    }
   };
 
-  // When the user submits Section 2, we move on (to Section 4, typically)
+  /**
+   * Submit handler: optional validation, then onNext
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Optional: you can validate this section here before proceeding.
+    // Additional validation if needed
     onNext();
   };
 
@@ -41,39 +62,39 @@ function Section2Mentor({ data, updateData, onNext }) {
     <form className="form-container" onSubmit={handleSubmit}>
       <h2 className="form-heading">Mentor Profile Questions</h2>
 
-      {/* STEAM Background (radio) */}
+      {/* STEAM Background (radio numeric) */}
       <div style={{ marginBottom: "15px" }}>
         <label style={{ fontWeight: "bold" }}>STEAM Background:</label>
         <div>
           {STEAM_BACKGROUND_OPTIONS.map((option) => (
-            <label key={option} style={{ display: "block", marginTop: "5px" }}>
+            <label key={option.id} style={{ display: "block", marginTop: "5px" }}>
               <input
                 type="radio"
                 name="steamBackground"
-                value={option}
-                checked={data.steamBackground === option}
+                value={option.id}
+                checked={data.steamBackground === option.id}
                 onChange={handleChange}
               />
-              {` ${option}`}
+              {` ${option.label}`}
             </label>
           ))}
         </div>
       </div>
 
-      {/* Current Academic Level (radio) */}
+      {/* Current Academic Level (radio numeric) */}
       <div style={{ marginBottom: "15px" }}>
         <label style={{ fontWeight: "bold" }}>Current Academic Level:</label>
         <div>
           {ACADEMIC_LEVEL_OPTIONS.map((level) => (
-            <label key={level} style={{ display: "block", marginTop: "5px" }}>
+            <label key={level.id} style={{ display: "block", marginTop: "5px" }}>
               <input
                 type="radio"
                 name="academicLevel"
-                value={level}
-                checked={data.academicLevel === level}
+                value={level.id}
+                checked={data.academicLevel === level.id}
                 onChange={handleChange}
               />
-              {` ${level}`}
+              {` ${level.label}`}
             </label>
           ))}
         </div>
@@ -107,20 +128,20 @@ function Section2Mentor({ data, updateData, onNext }) {
         <span className="floating-label-text">Current Employer</span>
       </label>
 
-      {/* Reasons for Mentoring (radio) */}
+      {/* Reasons for Mentoring (radio numeric) */}
       <div style={{ marginBottom: "15px" }}>
         <label style={{ fontWeight: "bold" }}>Reasons for Mentoring:</label>
         <div>
           {REASONS_FOR_MENTORING_OPTIONS.map((reason) => (
-            <label key={reason} style={{ display: "block", marginTop: "5px" }}>
+            <label key={reason.id} style={{ display: "block", marginTop: "5px" }}>
               <input
                 type="radio"
                 name="reasonsForMentoring"
-                value={reason}
-                checked={data.reasonsForMentoring === reason}
+                value={reason.id}
+                checked={data.reasonsForMentoring === reason.id}
                 onChange={handleChange}
               />
-              {` ${reason}`}
+              {` ${reason.label}`}
             </label>
           ))}
         </div>

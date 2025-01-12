@@ -10,7 +10,7 @@ import StepProgressBar from "./StepProgressBar";
 import { FaArrowLeft } from "react-icons/fa";
 import "../styling/Form.css";
 import { AuthContext } from "../context/AuthContext";
-import { registerMentor, registerMentee } from "../api"; // Import API functions
+import { registerMentor, registerMentee } from "../api"; // Your API functions
 
 function MultiStepForm() {
   const [step, setStep] = useState(1);
@@ -18,47 +18,34 @@ function MultiStepForm() {
   const { logout } = useContext(AuthContext);
 
   /**
-   * Updated formData:
-   * - dateOfBirth: ""  (replaces ageBracket)
-   * - addressLine1: "" 
-   * - zipcode: ""      
-   * - latitude, longitude: null 
-   * - sessionPreferences: []
-   * - unavailableDates: "" 
-   * 
-   * Additional DB fields (match_pair_ids, is_available_for_matching, mentoring_sessions_completed) 
-   * will be set in final submission code.
+   * formData with numeric IDs for checkboxes/radios
    */
   const [formData, setFormData] = useState({
     // ====== Section 1 fields ======
     email: "",
     name: "",
-    dateOfBirth: "",     // was ageBracket, replaced with dateOfBirth
+    ageBracket: 0,
     phoneNumber: "",
-    addressLine1: "",    // new address line
     city: "",
     state: "",
-    zipcode: "",
-    latitude: null,      // lat from geocoding
-    longitude: null,     // lon from geocoding
     ethnicities: [],
     sessionPreferences: [],
-    ethnicityPreference: "",
+    ethnicityPreference: 0,
     gender: [],
-    genderPreference: "",
+    genderPreference: 0,
     methods: [],
     role: "", // 'mentor' or 'mentee'
 
     // ====== Section 2 (Mentor) fields ======
-    steamBackground: "", // "Professional" or "Student"
-    academicLevel: "",   // e.g. "College Undergraduate"
+    steamBackground: 0,
+    academicLevel: 0,
     professionalTitle: "",
     currentEmployer: "",
-    reasonsForMentoring: "",
+    reasonsForMentoring: 0,
     willingToAdvise: 1,
 
     // ====== Section 3 (Mentee) fields ======
-    grade: "",
+    grade: 0,
     reasonsForMentor: [],
     reasonsForMentorOther: "",
     interests: [],
@@ -73,21 +60,12 @@ function MultiStepForm() {
   const [error, setError] = useState(null);
 
   const totalSteps = 4;
-  const stepLabels = [
-    "Basic Info",
-    "Mentor Profile",
-    "Mentee Profile",
-    "Calendar Availability",
-  ];
+  const stepLabels = ["Basic Info", "Mentor Profile", "Mentee Profile", "Calendar Availability"];
 
-  /** Merge updates from child forms into main formData state. */
   const updateFormData = (updates) => {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
-  /**
-   * Navigation logic after Section 1 -> Section 2 or 3
-   */
   const handleNextFromSection1 = () => {
     if (formData.role === "mentor") {
       setStep(2);
@@ -111,109 +89,211 @@ function MultiStepForm() {
   };
 
   /**
-   * Final submit in Section 4
+   * Utility to convert final JSON into CSV string for download,
+   * preserving arrays as JSON strings, e.g. [1,4].
+   */
+  const generateCSV = (finalObj) => {
+    const headers = Object.keys(finalObj);
+    const rows = [];
+
+    // Header row
+    rows.push(headers.join(","));
+
+    // Data row
+    const dataRow = headers
+      .map((h) => {
+        let val = finalObj[h];
+
+        if (Array.isArray(val)) {
+          // Convert array to JSON, e.g. [1,4,9]
+          val = JSON.stringify(val);
+        }
+        if (val == null) {
+          val = "";
+        }
+        if (typeof val === "string") {
+          val = val.replace(/"/g, '""'); // Escape quotes
+        }
+
+        return `"${val}"`;
+      })
+      .join(",");
+
+    rows.push(dataRow);
+    return rows.join("\n");
+  };
+
+  /**
+   * Helper to handle CSV download
+   */
+  const downloadCSV = (objForCSV, filename) => {
+    const csvString = generateCSV(objForCSV);
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    // Create a temporary link and click it
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Cleanup
+    URL.revokeObjectURL(url);
+  };
+
+  /**
+   * Final submission in Section4:
+   * We'll download CSV first with arrays as JSON, then call the API.
    */
   const handleSubmitFinal = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      let response;
+      let payload;
+      let isMentor = formData.role === "mentor";
 
-      if (formData.role === "mentor") {
-        // Prepare mentor data
-        const mentorData = {
+      if (isMentor) {
+        payload = {
+          // Basic info
           email: formData.email,
           name: formData.name,
-          date_of_birth: formData.dateOfBirth,
           phone_number: formData.phoneNumber,
-          address_line_1: formData.addressLine1,
           city: formData.city,
           state: formData.state,
-          zipcode: formData.zipcode,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
+
+          // numeric approach
+          age_bracket: formData.ageBracket,
           ethnicities: formData.ethnicities,
           ethnicity_preference: formData.ethnicityPreference,
           gender: formData.gender,
           gender_preference: formData.genderPreference,
           methods: formData.methods,
-          sessionPreferences: formData.sessionPreferences,
-          role: formData.role,
-          steamBackground: formData.steamBackground,
-          academicLevel: formData.academicLevel,
-          professionalTitle: formData.professionalTitle,
-          currentEmployer: formData.currentEmployer,
-          reasonsForMentoring: formData.reasonsForMentoring,
-          willingToAdvise: formData.willingToAdvise,
-          unavailableDates: formData.unavailableDates,
+          session_preferences: formData.sessionPreferences,
+          role: formData.role, // "mentor"
 
-          // ============= New fields for DB =============
-          match_pair_ids: [],                 // Empty array initially
-          is_available_for_matching: true,    // True by default
-          mentoring_sessions_completed: 0,    // 0 by default
+          // mentor-specific
+          steam_background: formData.steamBackground,
+          academic_level: formData.academicLevel,
+          professional_title: formData.professionalTitle,
+          current_employer: formData.currentEmployer,
+          reasons_for_mentoring: formData.reasonsForMentoring,
+          willing_to_advise: formData.willingToAdvise,
+
+          // section4
+          availability: formData.availability,
+          unavailable_dates: formData.unavailableDates,
+
+          // Additional
+          match_pair_ids: [],
+          is_available_for_matching: true,
+          mentoring_sessions_completed: 0,
         };
-
-        response = await registerMentor(mentorData);
+        console.log(payload.email);
+        console.log(payload.ageBracket);
+        console.log(payload.availability);
+        console.log(payload.unavailableDates);
 
       } else if (formData.role === "mentee") {
-        // Prepare mentee data
-        const menteeData = {
+        payload = {
+          // Basic info
           email: formData.email,
           name: formData.name,
-          date_of_birth: formData.dateOfBirth,
           phone_number: formData.phoneNumber,
-          address_line_1: formData.addressLine1,
           city: formData.city,
           state: formData.state,
-          zipcode: formData.zipcode,
-          latitude: formData.latitude,
-          longitude: formData.longitude,
+
+          // numeric approach
+          age_bracket: formData.ageBracket,
           ethnicities: formData.ethnicities,
           ethnicity_preference: formData.ethnicityPreference,
           gender: formData.gender,
           gender_preference: formData.genderPreference,
           methods: formData.methods,
           sessionPreferences: formData.sessionPreferences,
-          role: formData.role,
+          role: formData.role, // "mentee"
+
+          // mentee-specific
           grade: formData.grade,
           reasons_for_mentoring: formData.reasonsForMentor,
           interests: formData.interests,
           availability: formData.availability,
           unavailableDates: formData.unavailableDates,
 
-          // ============= New fields for DB =============
           match_pair_ids: [],
           is_available_for_matching: true,
           mentoring_sessions_completed: 0,
         };
 
-        // If Mentee selected "Other..." reason
-        if (formData.reasonsForMentor.includes("Other…")) {
-          menteeData.reasons_for_mentoring = [
-            ...menteeData.reasons_for_mentoring,
+        // If "Other…" reason => attach text
+        if (formData.reasonsForMentor.includes(4)) {
+          payload.reasons_for_mentoring = [
+            ...payload.reasons_for_mentoring,
             formData.reasonsForMentorOther,
           ];
-        }
-        // If Mentee selected "Other..." interest
-        if (formData.interests.includes("Other…")) {
-          menteeData.interests = [
-            ...menteeData.interests,
-            formData.interestsOther,
-          ];
+        } else {
+          payload.reasons_for_mentoring = [""];
         }
 
-        response = await registerMentee(menteeData);
+        // If "Other…" interest => attach text
+        if (formData.interests.includes(8)) {
+          payload.interests = [
+            ...payload.interests,
+            formData.interestsOther,
+          ];
+        } else {
+          payload.interestsOther = [""];
+        }
+
+        console.log(payload.email);
+        console.log(payload.ageBracket);
+        console.log(payload.availability);
+        console.log(payload.unavailableDates);
 
       } else {
         throw new Error("Invalid role selected.");
       }
+      console.log(payload);
+      // Download CSV with array fields as JSON
+      if (isMentor) {
+        downloadCSV(payload, "mentor_form_data.csv");
+      } else {
+        downloadCSV(payload, "mentee_form_data.csv");
+      }
+
+      // Then call the API
+      let response;
+      if (isMentor) {
+        try {
+          response = await registerMentor(payload);
+        } 
+        catch(err) {
+          if (err.response?.status === 422) {
+            console.error("422 Error detail:", err.response.data.detail);
+          }
+          console.error(err);
+        }
+      } else {
+        try {
+          response = await registerMentee(payload);
+        } 
+        catch(err) {
+          if (err.response?.status === 422) {
+            console.error("422 Error detail:", err.response.data.detail);
+          }
+          console.error(err);
+        }
+      }
 
       console.log("Registration successful:", response.data);
-
       alert("Form submitted successfully! Your data has been uploaded.");
+
+      // final step
       logout();
       navigate("/login");
+
     } catch (err) {
       console.error("Error submitting form:", err);
       setError(err.response?.data?.detail || "An unexpected error occurred.");
