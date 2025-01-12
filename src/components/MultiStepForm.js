@@ -8,7 +8,7 @@ import Section3Mentee from "./Section3Mentee";
 import Section4 from "./Section4";
 import StepProgressBar from "./StepProgressBar";
 import { FaArrowLeft } from "react-icons/fa";
-import "../styling/Form.css"; // Assuming separate CSS
+import "../styling/Form.css";
 import { AuthContext } from "../context/AuthContext";
 import { registerMentor, registerMentee } from "../api"; // Import API functions
 
@@ -17,15 +17,32 @@ function MultiStepForm() {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
 
+  /**
+   * Updated formData:
+   * - dateOfBirth: ""  (replaces ageBracket)
+   * - addressLine1: "" 
+   * - zipcode: ""      
+   * - latitude, longitude: null 
+   * - sessionPreferences: []
+   * - unavailableDates: "" 
+   * 
+   * Additional DB fields (match_pair_ids, is_available_for_matching, mentoring_sessions_completed) 
+   * will be set in final submission code.
+   */
   const [formData, setFormData] = useState({
     // ====== Section 1 fields ======
     email: "",
     name: "",
-    ageBracket: "",
+    dateOfBirth: "",     // was ageBracket, replaced with dateOfBirth
     phoneNumber: "",
+    addressLine1: "",    // new address line
     city: "",
     state: "",
+    zipcode: "",
+    latitude: null,      // lat from geocoding
+    longitude: null,     // lon from geocoding
     ethnicities: [],
+    sessionPreferences: [],
     ethnicityPreference: "",
     gender: [],
     genderPreference: "",
@@ -34,11 +51,11 @@ function MultiStepForm() {
 
     // ====== Section 2 (Mentor) fields ======
     steamBackground: "", // "Professional" or "Student"
-    academicLevel: "", // e.g. "College Undergraduate", etc.
-    professionalTitle: "", // e.g. "Software Engineer" or "N/A"
-    currentEmployer: "", // e.g. "Google"
-    reasonsForMentoring: "", // e.g. "Give back to community"
-    willingToAdvise: 1, // slider 1 - 10
+    academicLevel: "",   // e.g. "College Undergraduate"
+    professionalTitle: "",
+    currentEmployer: "",
+    reasonsForMentoring: "",
+    willingToAdvise: 1,
 
     // ====== Section 3 (Mentee) fields ======
     grade: "",
@@ -49,23 +66,27 @@ function MultiStepForm() {
 
     // ====== Section 4 ======
     availability: [],
+    unavailableDates: "",
   });
 
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const totalSteps = 4;
-  const stepLabels = ["Basic Info", "Mentor Profile", "Mentee Profile", "Calendar Availability"];
+  const stepLabels = [
+    "Basic Info",
+    "Mentor Profile",
+    "Mentee Profile",
+    "Calendar Availability",
+  ];
 
-  /**
-   * Helper to merge updates from child components into our main formData state.
-   */
+  /** Merge updates from child forms into main formData state. */
   const updateFormData = (updates) => {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   /**
-   * Move from Section 1 -> either Section 2 or Section 3
+   * Navigation logic after Section 1 -> Section 2 or 3
    */
   const handleNextFromSection1 = () => {
     if (formData.role === "mentor") {
@@ -79,20 +100,12 @@ function MultiStepForm() {
     }
   };
 
-  /**
-   * Move from Section 2 -> Section 4 (if Mentor)
-   */
   const handleNextFromSection2 = () => {
-    // Perform any validation if needed
     setStep(4);
     navigate("/form/section4");
   };
 
-  /**
-   * Move from Section 3 -> Section 4 (if Mentee)
-   */
   const handleNextFromSection3 = () => {
-    // Perform any validation if needed
     setStep(4);
     navigate("/form/section4");
   };
@@ -106,20 +119,26 @@ function MultiStepForm() {
 
     try {
       let response;
+
       if (formData.role === "mentor") {
         // Prepare mentor data
         const mentorData = {
           email: formData.email,
           name: formData.name,
-          age_bracket: formData.ageBracket,
+          date_of_birth: formData.dateOfBirth,
           phone_number: formData.phoneNumber,
+          address_line_1: formData.addressLine1,
           city: formData.city,
           state: formData.state,
+          zipcode: formData.zipcode,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
           ethnicities: formData.ethnicities,
           ethnicity_preference: formData.ethnicityPreference,
           gender: formData.gender,
           gender_preference: formData.genderPreference,
           methods: formData.methods,
+          sessionPreferences: formData.sessionPreferences,
           role: formData.role,
           steamBackground: formData.steamBackground,
           academicLevel: formData.academicLevel,
@@ -127,40 +146,56 @@ function MultiStepForm() {
           currentEmployer: formData.currentEmployer,
           reasonsForMentoring: formData.reasonsForMentoring,
           willingToAdvise: formData.willingToAdvise,
+          unavailableDates: formData.unavailableDates,
+
+          // ============= New fields for DB =============
+          match_pair_ids: [],                 // Empty array initially
+          is_available_for_matching: true,    // True by default
+          mentoring_sessions_completed: 0,    // 0 by default
         };
 
-        // Send data to backend
         response = await registerMentor(mentorData);
+
       } else if (formData.role === "mentee") {
         // Prepare mentee data
         const menteeData = {
           email: formData.email,
           name: formData.name,
-          age_bracket: formData.ageBracket,
+          date_of_birth: formData.dateOfBirth,
           phone_number: formData.phoneNumber,
+          address_line_1: formData.addressLine1,
           city: formData.city,
           state: formData.state,
+          zipcode: formData.zipcode,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
           ethnicities: formData.ethnicities,
           ethnicity_preference: formData.ethnicityPreference,
           gender: formData.gender,
           gender_preference: formData.genderPreference,
           methods: formData.methods,
+          sessionPreferences: formData.sessionPreferences,
           role: formData.role,
           grade: formData.grade,
           reasons_for_mentoring: formData.reasonsForMentor,
           interests: formData.interests,
           availability: formData.availability,
+          unavailableDates: formData.unavailableDates,
+
+          // ============= New fields for DB =============
+          match_pair_ids: [],
+          is_available_for_matching: true,
+          mentoring_sessions_completed: 0,
         };
 
-        // Include "Other" reasons if provided
+        // If Mentee selected "Other..." reason
         if (formData.reasonsForMentor.includes("Other…")) {
           menteeData.reasons_for_mentoring = [
             ...menteeData.reasons_for_mentoring,
             formData.reasonsForMentorOther,
           ];
         }
-
-        // Include "Other" interests if provided
+        // If Mentee selected "Other..." interest
         if (formData.interests.includes("Other…")) {
           menteeData.interests = [
             ...menteeData.interests,
@@ -168,20 +203,17 @@ function MultiStepForm() {
           ];
         }
 
-        // Send data to backend
         response = await registerMentee(menteeData);
+
       } else {
         throw new Error("Invalid role selected.");
       }
 
-      // Handle successful registration
       console.log("Registration successful:", response.data);
 
-      // Optionally, create a matching here or have an admin do it later
-      // For example, you can navigate to a confirmation page
       alert("Form submitted successfully! Your data has been uploaded.");
-      logout(); // Log out after submission
-      navigate("/login"); // Redirect to login
+      logout();
+      navigate("/login");
     } catch (err) {
       console.error("Error submitting form:", err);
       setError(err.response?.data?.detail || "An unexpected error occurred.");
@@ -190,81 +222,33 @@ function MultiStepForm() {
     }
   };
 
-  /**
-   * Allow user to go back
-   */
   const handleBack = () => {
     if (step === 2) {
-      // Mentor -> go back to Section 1
       setStep(1);
       navigate("/form/section1");
     } else if (step === 3) {
-      // Mentee -> go back to Section 1
       setStep(1);
       navigate("/form/section1");
     } else if (step === 4) {
-      // If user is on step 4, check role
       if (formData.role === "mentor") {
-        setStep(2); // go back to Mentor section
+        setStep(2);
         navigate("/form/section2");
       } else {
-        setStep(3); // go back to Mentee section
+        setStep(3);
         navigate("/form/section3");
       }
     }
   };
 
-  // Helper function to convert JSON to CSV
-  const convertToCSV = (data) => {
-    const headers = Object.keys(data);
-    const rows = [];
-
-    // Header row
-    const headerRow = headers.map((header) => `"${header}"`).join(",");
-    rows.push(headerRow);
-
-    // Data row
-    const dataRow = headers
-      .map((header) => {
-        let value = data[header];
-
-        if (Array.isArray(value)) {
-          // Join array items with semicolon
-          value = value.join("; ");
-        }
-
-        // Handle undefined or null values
-        if (value === undefined || value === null) {
-          value = "";
-        }
-
-        // Escape double quotes by doubling them
-        if (typeof value === "string") {
-          value = value.replace(/"/g, '""');
-        }
-
-        return `"${value}"`;
-      })
-      .join(",");
-
-    rows.push(dataRow);
-
-    return rows.join("\n");
-  };
-
   return (
     <div className="page-container">
-      {/* Step Progress Bar at the top */}
       <StepProgressBar
         step={step}
         totalSteps={totalSteps}
         stepLabels={stepLabels}
-        role={formData.role} // Pass the role to handle specific step styling
+        role={formData.role}
       />
 
-      {/* 
-        Show a back arrow/button if we’re not on step 1.
-      */}
       {step > 1 && (
         <button
           type="button"
@@ -276,10 +260,8 @@ function MultiStepForm() {
         </button>
       )}
 
-      {/* Display error message if any */}
       {error && <div className="error-message">{error}</div>}
 
-      {/* Nested Routes for Each Section */}
       <Routes>
         <Route
           path="section1"
@@ -326,7 +308,7 @@ function MultiStepForm() {
               data={formData}
               updateData={updateFormData}
               onSubmit={handleSubmitFinal}
-              loading={loading} // Pass loading state
+              loading={loading}
             />
           }
         />

@@ -1,10 +1,12 @@
 // src/components/MentorMenteeMatchings.jsx
 import React, { useState, useMemo, useEffect } from "react";
 import "../styling/MentorMenteeMatchings.css";
+import { useNavigate } from "react-router-dom";
 
 const MentorMenteeMatchings = () => {
   // React state to store matchings data fetched from the backend
   const [matchingsData, setMatchingsData] = useState([]);
+  const navigate = useNavigate();
 
   // States for search, filter, sorting, pagination
   const [searchTerm, setSearchTerm] = useState("");
@@ -140,6 +142,10 @@ const MentorMenteeMatchings = () => {
     resetToFirstPage();
   };
 
+  const navigateHome = () => {
+    navigate("/home");
+  }
+
   /* --------------------------- uniqueStatuses ---------------------------- */
   const uniqueStatuses = ["All", ...new Set(matchingsData.map((m) => m.status))];
   console.log("uniqueStatuses:", uniqueStatuses);
@@ -147,6 +153,7 @@ const MentorMenteeMatchings = () => {
   /* ------------------------------ Rendering ------------------------------ */
   return (
     <div className="matchings-container">
+      <button className="button" onClick={() => navigateHome()}>Back</button>
       <h2 className="matchings-title">Mentor-Mentee Matchings</h2>
 
       {/* Search and Filter Controls */}

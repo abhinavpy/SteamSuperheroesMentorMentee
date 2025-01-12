@@ -1,11 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styling/Form.css";
-
-/** 
- * Optional: If you want to define the state list and other constants here,
- * you can. For brevity, let's show partial. 
- * In a real project, you might import them from a shared constants file.
- */
 
 // Age bracket options for radio buttons
 const AGE_BRACKETS = [
@@ -20,56 +14,55 @@ const AGE_BRACKETS = [
 ];
 
 // US States (value : label)
-// List of U.S. states (value : label)
 const US_STATES = [
-    { value: "AL", label: "Alabama" },
-    { value: "AK", label: "Alaska" },
-    { value: "AZ", label: "Arizona" },
-    { value: "AR", label: "Arkansas" },
-    { value: "CA", label: "California" },
-    { value: "CO", label: "Colorado" },
-    { value: "CT", label: "Connecticut" },
-    { value: "DC", label: "District of Columbia" },
-    { value: "DE", label: "Delaware" },
-    { value: "FL", label: "Florida" },
-    { value: "GA", label: "Georgia" },
-    { value: "HI", label: "Hawaii" },
-    { value: "ID", label: "Idaho" },
-    { value: "IL", label: "Illinois" },
-    { value: "IN", label: "Indiana" },
-    { value: "IA", label: "Iowa" },
-    { value: "KS", label: "Kansas" },
-    { value: "KY", label: "Kentucky" },
-    { value: "LA", label: "Louisiana" },
-    { value: "ME", label: "Maine" },
-    { value: "MD", label: "Maryland" },
-    { value: "MA", label: "Massachussetts" },
-    { value: "MI", label: "Michigan" },
-    { value: "MN", label: "Minnesota" },
-    { value: "MS", label: "Mississippi" },
-    { value: "MO", label: "Missouri" },
-    { value: "MT", label: "Montana" },
-    { value: "NE", label: "Nebraska" },
-    { value: "NV", label: "Nevada" },
-    { value: "NY", label: "New York" },
-    { value: "NC", label: "North Carolina" },
-    { value: "ND", label: "North Dakota" },
-    { value: "OH", label: "Ohio" },
-    { value: "OK", label: "Oklahoma" },
-    { value: "OR", label: "Oregon" },
-    { value: "PA", label: "Pennsylvania" },
-    { value: "RI", label: "Rhode Island" },
-    { value: "SC", label: "South Carolina" },
-    { value: "SD", label: "South Dakota" },
-    { value: "TN", label: "Tennessee" },
-    { value: "TX", label: "Texas" },
-    { value: "VT", label: "Vermont" },
-    { value: "VA", label: "Virginia" },
-    { value: "WA", label: "Washington" },
-    { value: "WV", label: "West Virginia" },
-    { value: "WI", label: "Wisconsin" },
-    { value: "WY", label: "Wyoming" },
-  ];
+  { value: "AL", label: "Alabama" },
+  { value: "AK", label: "Alaska" },
+  { value: "AZ", label: "Arizona" },
+  { value: "AR", label: "Arkansas" },
+  { value: "CA", label: "California" },
+  { value: "CO", label: "Colorado" },
+  { value: "CT", label: "Connecticut" },
+  { value: "DC", label: "District of Columbia" },
+  { value: "DE", label: "Delaware" },
+  { value: "FL", label: "Florida" },
+  { value: "GA", label: "Georgia" },
+  { value: "HI", label: "Hawaii" },
+  { value: "ID", label: "Idaho" },
+  { value: "IL", label: "Illinois" },
+  { value: "IN", label: "Indiana" },
+  { value: "IA", label: "Iowa" },
+  { value: "KS", label: "Kansas" },
+  { value: "KY", label: "Kentucky" },
+  { value: "LA", label: "Louisiana" },
+  { value: "ME", label: "Maine" },
+  { value: "MD", label: "Maryland" },
+  { value: "MA", label: "Massachussetts" },
+  { value: "MI", label: "Michigan" },
+  { value: "MN", label: "Minnesota" },
+  { value: "MS", label: "Mississippi" },
+  { value: "MO", label: "Missouri" },
+  { value: "MT", label: "Montana" },
+  { value: "NE", label: "Nebraska" },
+  { value: "NV", label: "Nevada" },
+  { value: "NY", label: "New York" },
+  { value: "NC", label: "North Carolina" },
+  { value: "ND", label: "North Dakota" },
+  { value: "OH", label: "Ohio" },
+  { value: "OK", label: "Oklahoma" },
+  { value: "OR", label: "Oregon" },
+  { value: "PA", label: "Pennsylvania" },
+  { value: "RI", label: "Rhode Island" },
+  { value: "SC", label: "South Carolina" },
+  { value: "SD", label: "South Dakota" },
+  { value: "TN", label: "Tennessee" },
+  { value: "TX", label: "Texas" },
+  { value: "VT", label: "Vermont" },
+  { value: "VA", label: "Virginia" },
+  { value: "WA", label: "Washington" },
+  { value: "WV", label: "West Virginia" },
+  { value: "WI", label: "Wisconsin" },
+  { value: "WY", label: "Wyoming" },
+];
 
 // Ethnicity (checkbox) options
 const ETHNICITY_OPTIONS = [
@@ -82,6 +75,16 @@ const ETHNICITY_OPTIONS = [
   "Native Hawaiian or Pacific Islander: Includes Samoan, Guamanian, Chamorro, and Tongan",
   "White or European: Includes German, Irish, English, Italian, Polish, and French",
   "Other…",
+];
+
+// Session Type (checkbox) options
+const SESSION_TYPE_PREFERENCES = [
+  "Homework Help",
+  "Exposure to STEAM in general",
+  "College guidance",
+  "Career guidance",
+  "Explore a particular field",
+  "Other: text"
 ];
 
 // Ethnicity matching preference (radio)
@@ -121,13 +124,15 @@ const METHOD_OPTIONS = [
 ];
 
 function Section1({ data, updateData, onNext }) {
+  const [errorMsg, setErrorMsg] = useState("");
+
   // Handler for standard text/select/radio inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     updateData({ [name]: value });
   };
 
-  // Handler for checkbox arrays (Ethnicities, Gender, Methods)
+  // Handler for checkbox arrays (Ethnicities, Gender, Methods, Session Preferences)
   const handleCheckboxChange = (e, fieldName) => {
     const { value, checked } = e.target;
     if (checked) {
@@ -139,16 +144,63 @@ function Section1({ data, updateData, onNext }) {
     }
   };
 
-  // Prevent default form submission. We'll call onNext instead.
-  const handleFormSubmit = (e) => {
+    /**
+   * Attempt geocoding with a public API (OpenStreetMap / Nominatim).
+   * Return { lat, lon } or throw an error if not found.
+   */
+    const geocodeAddress = async (addressLine1, city, state, zipcode) => {
+      const query = encodeURIComponent(`${addressLine1}, ${city}, ${state} ${zipcode}, USA`);
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${query}`;
+  
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Geocoding request failed.");
+      }
+  
+      const results = await response.json();
+      // If results is an empty array => address not found
+      if (!results || results.length === 0) {
+        throw new Error("Address not found. Please check your details.");
+      }
+  
+      // We pick the first result
+      const { lat, lon } = results[0];
+      if (!lat || !lon) {
+        throw new Error("Invalid geocode response. Please check your address details.");
+      }
+  
+      return { lat, lon };
+    };
+
+  /**
+   * Called when user clicks "Next".
+   * We'll geocode the address. If invalid, show an error and do not proceed.
+   */
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    onNext(); // Move to the next step (Mentor -> Section2, Mentee -> Section3)
+    setErrorMsg("");
+
+    const { addressLine1, city, state, zipcode } = data;
+
+    try {
+      const { lat, lon } = await geocodeAddress(addressLine1, city, state, zipcode);
+      console.log("Geocode success:", lat, lon);
+
+      // If successful, store lat/long in formData, then proceed.
+      updateData({ latitude: lat, longitude: lon });
+
+      onNext(); // Move to next section
+    } catch (error) {
+      console.error("Geocoding error:", error.message);
+      setErrorMsg(error.message || "Invalid address. Please correct your details.");
+    }
   };
 
   return (
     <form className="form-container" onSubmit={handleFormSubmit}>
-      {/* <img src="../../public/SteamSuperheroesLogo.png" alt="Steam Superheroes Logo" width="100" height="200"></img> */}
-      <h1 className="form-heading">STEAM Superheroes Mentor Mentee Matching Form</h1> 
+      <h1 className="form-heading">
+        STEAM Superheroes Mentor Mentee Matching Form
+      </h1>
       <h2 className="form-heading">Section 1 - Basic Info</h2>
 
       {/* Email (floating label) */}
@@ -178,7 +230,7 @@ function Section1({ data, updateData, onNext }) {
         <span className="floating-label-text">Name</span>
       </label>
 
-      {/* Age Bracket (radio) */}
+      {/* Age Bracket (radio)
       <div style={{ marginBottom: "15px" }}>
         <label style={{ fontWeight: "bold" }}>Age Bracket:</label>
         <div>
@@ -195,7 +247,21 @@ function Section1({ data, updateData, onNext }) {
             </label>
           ))}
         </div>
-      </div>
+      </div> */}
+
+      {/* Date of Birth (NEW) */}
+      <label className="floating-label">
+        <input
+          type="date"
+          name="dateOfBirth"
+          placeholder=" "
+          className="floating-input"
+          value={data.dateOfBirth || ""}
+          onChange={handleChange}
+          required
+        />
+        <span className="floating-label-text">Date of Birth</span>
+      </label>
 
       {/* Phone Number (floating label) */}
       <label className="floating-label">
@@ -208,6 +274,21 @@ function Section1({ data, updateData, onNext }) {
           onChange={handleChange}
         />
         <span className="floating-label-text">Phone Number</span>
+      </label>
+          
+      {errorMsg && <div className="error-message">{errorMsg}</div>}
+
+      {/* Address Line 1 (NEW) */}
+      <label className="floating-label">
+        <input
+          type="text"
+          name="addressLine1"
+          placeholder=" "
+          className="floating-input"
+          value={data.addressLine1}
+          onChange={handleChange}
+        />
+        <span className="floating-label-text">Address (Line 1)</span>
       </label>
 
       {/* City (floating label) */}
@@ -224,11 +305,13 @@ function Section1({ data, updateData, onNext }) {
       </label>
 
       {/* State (select) */}
+      <label style={{ fontWeight: "bold" }}>State:</label>
       <select
         name="state"
         className="form-input"
         value={data.state}
         onChange={handleChange}
+        style={{ marginBottom: "15px" }}
       >
         <option value="">Select State</option>
         {US_STATES.map((st) => (
@@ -237,6 +320,22 @@ function Section1({ data, updateData, onNext }) {
           </option>
         ))}
       </select>
+
+      {/* Zipcode (floating label) */}
+      <label className="floating-label">
+        <input
+          type="text"
+          name="zipcode"
+          placeholder=" "
+          className="floating-input"
+          value={data.zipcode}
+          onChange={handleChange}
+          pattern="[0-9]{5}"
+          title="Please enter a valid 5-digit US zipcode"
+          required
+        />
+        <span className="floating-label-text">Zipcode</span>
+      </label>
 
       {/* Ethnicities (checkboxes) */}
       <div style={{ marginBottom: "15px" }}>
@@ -252,6 +351,25 @@ function Section1({ data, updateData, onNext }) {
                 onChange={(e) => handleCheckboxChange(e, "ethnicities")}
               />
               {` ${eth}`}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Session Preferences (checkbox) - new addition */}
+      <div style={{ marginBottom: "15px" }}>
+        <label style={{ fontWeight: "bold" }}>Session Type Preference:</label>
+        <div>
+          {SESSION_TYPE_PREFERENCES.map((pref) => (
+            <label key={pref} style={{ display: "block", marginTop: "5px" }}>
+              <input
+                type="checkbox"
+                name="sessionPreferences"
+                value={pref}
+                checked={data.sessionPreferences.includes(pref)}
+                onChange={(e) => handleCheckboxChange(e, "sessionPreferences")}
+              />
+              {` ${pref}`}
             </label>
           ))}
         </div>
@@ -365,6 +483,7 @@ function Section1({ data, updateData, onNext }) {
       </div>
 
       {/* Next Button */}
+      {errorMsg && <div className="error-message">{errorMsg}</div>}
       <button type="submit" className="form-button">
         Next
       </button>

@@ -1,5 +1,3 @@
-// src/components/Section4.jsx
-
 import React from "react";
 import "../styling/Form.css";
 
@@ -45,6 +43,14 @@ function Section4({ data, updateData, onSubmit, loading }) {
         availability: (data.availability || []).filter((slot) => slot !== value),
       });
     }
+  };
+
+  /**
+   * Handler for unavailable date ranges input
+   * Store the raw text in `data.unavailableDates` (you may parse/validate if you like)
+   */
+  const handleUnavailableDatesChange = (e) => {
+    updateData({ unavailableDates: e.target.value });
   };
 
   /**
@@ -133,11 +139,35 @@ function Section4({ data, updateData, onSubmit, loading }) {
         </table>
       </div>
 
+      {/* New Field for Unavailable Date Ranges */}
+      <div style={{ marginTop: "20px" }}>
+        <label htmlFor="unavailableDates" style={{ fontWeight: "bold" }}>
+          What are specific date ranges that you are NOT available?
+        </label>
+        <p style={{ fontSize: "0.9rem", marginTop: "5px" }}>
+          Please enter in{" "}
+          <strong>YYYYMMDD format</strong> with commas between each date or date
+          range. Use a dash (<strong>-</strong>) to specify a range.
+          <br />
+          <em>Example: 20231001,20231005-20231007,20231225</em>
+        </p>
+        <input
+          type="text"
+          id="unavailableDates"
+          name="unavailableDates"
+          className="floating-input"
+          style={{ width: "100%", marginTop: "5px" }}
+          placeholder="e.g. 20231001,20231005-20231007"
+          value={data.unavailableDates || ""}
+          onChange={handleUnavailableDatesChange}
+        />
+      </div>
+
       <button
         type="submit"
         className="form-button"
         style={{ marginTop: "20px" }}
-        disabled={loading} // Disable button when loading
+        disabled={loading}
       >
         {loading ? "Submitting..." : "Submit"}
       </button>

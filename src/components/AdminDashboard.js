@@ -7,6 +7,8 @@ import { AuthContext } from "../context/AuthContext";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css"; // Import default styles
 import LeftSidebar from "../components/LeftSidebar"; // Import the LeftSidebar component
+import AdminCreateSession from "./CreateSessionPage"; // path to your file
+
 
 
 const AdminDashboard = () => {
@@ -15,6 +17,8 @@ const AdminDashboard = () => {
 
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showCreateSession, setShowCreateSession] = useState(false);
+
 
   // Sample events array (you can replace this with dynamic data)
   const events = [
@@ -36,31 +40,46 @@ const AdminDashboard = () => {
     setIsSidebarVisible(false); // Hide sidebar after navigation on mobile
   };
 
+  const handleCreateSession = () => {
+    navigate("/admin/create-session");
+    setIsSidebarVisible(false);
+  };
+
   async function handleDoMatching() {
-    try {
-      const response = await fetch("http://127.0.0.1:8000/api/matching/do", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        alert(`Error: ${errorData.detail}`);
-        return;
+    const userConfirmed = window.confirm("Are you sure you want to perform the matching? NOTE: If you proceed, all new entries of mentors would be matched with potential new mentees.");
+    if (!userConfirmed) {
+      console.log("User chose not to proceed."); 
+      return;
+    } else {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/matching/do", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.detail}`);
+          return;
+        }
+        const data = await response.json();
+        console.log("Matching result:", data);
+        const navigateToMatchings = window.confirm("Pairings completed! Navigate to matchings table?");
+        if (!navigateToMatchings) {
+          console.log("User chose not to proceed."); 
+          return;
+        }
+        // data.matched_pairs is an array of matched pairs
+        // e.g. [ { mentor_name: ..., mentee_name: ..., match_date: ... }, ... ]
+        // Display the table in your UI
+        navigate("/admin/matchings");
+      } catch (error) {
+        console.error("Error performing matching:", error);
       }
-      const data = await response.json();
-      console.log("Matching result:", data);
-      // data.matched_pairs is an array of matched pairs
-      // e.g. [ { mentor_name: ..., mentee_name: ..., match_date: ... }, ... ]
-      // Display the table in your UI
-      navigate("/admin/matchings");
-    } catch (error) {
-      console.error("Error performing matching:", error);
     }
   }
   
-
   const toggleSidebar = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
@@ -81,13 +100,27 @@ const AdminDashboard = () => {
     navigate("/admin/matchings"); // Route for Mentor-Mentee Matchings
   };
 
+  const handleViewSessions = () => {
+    navigate("/admin/sessions");
+  };
+
+  const handleViewMentors = () => {
+    navigate("/admin/mentors");
+  };
+
+  const handleViewMentees = () => {
+    navigate("/admin/mentees")
+  };
+
   // Define menu items for Admin Dashboard
   const menuItems = [
     { label: "Home", onClick: () => navigate("/admin") },
-    { label: "Manage Users", onClick: () => navigate("/admin/manage-users") },
+    { label: "View Mentors", onClick: handleViewMentors },
+    { label: "View Mentees", onClick: handleViewMentees },
     { label: "View Reports", onClick: () => navigate("/admin/view-reports") },
     { label: "System Logs", onClick: () => navigate("/admin/system-logs") },
     { label: "Matchings", onClick: handleViewMatchings }, // New menu item
+    { label: "Sessions", onClick: handleViewSessions },
   ];
 
       // Define projects/tools for Admin Dashboard
@@ -184,6 +217,9 @@ const AdminDashboard = () => {
             </button>
             <button className="new-project-btn" onClick={handleDoMatching}>
               + Perform Matching
+            </button>
+            <button className='new-project-btn' onClick={handleCreateSession}>
+              + Create Session
             </button>
             <div className="profile">
               <img src="https://via.placeholder.com/30" alt="Profile" />
