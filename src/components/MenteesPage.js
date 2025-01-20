@@ -1,6 +1,8 @@
 // src/pages/MenteesPage.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import "../styling/ExpandableList.css";
+import { useNavigate } from "react-router-dom";
+
 
 // ====== Example label mappings ======
 // Adjust to match your numeric IDs vs labels
@@ -80,6 +82,7 @@ const INTERESTS_LABELS = {
 function MenteesPage() {
   const [mentees, setMentees] = useState([]);
   const [expandedRowId, setExpandedRowId] = useState(null);
+  const navigate = useNavigate();
 
   // Edit states
   const [editRowId, setEditRowId] = useState(null);
@@ -257,9 +260,14 @@ function MenteesPage() {
       .join(", ");
   };
 
+  const navigateHome = () => {
+    navigate("/home");
+  }
+
   return (
     <div className="expandable-list-container">
-      <h2 className="expandable-list-title">Mentees (Expandable Rows)</h2>
+      <button className="button" onClick={() => navigateHome()}>Back</button>
+      <h2 className="expandable-list-title">Mentees</h2>
 
       <div className="list-controls">
         <input

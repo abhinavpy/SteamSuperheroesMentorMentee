@@ -1,6 +1,7 @@
 // src/pages/MentorsPage.jsx
 import React, { useState, useEffect, useMemo } from "react";
 import "../styling/ExpandableList.css"; // Import the teal styling
+import { useNavigate } from "react-router-dom";
 
 // ====== Example Mappings for Numeric IDs ======
 // Adjust these to match your actual IDs and labels
@@ -78,6 +79,7 @@ const REASONS_MENTORING_LABELS = {
 function MentorsPage() {
   const [mentors, setMentors] = useState([]);
   const [expandedRowId, setExpandedRowId] = useState(null);
+  const navigate = useNavigate();
 
   // Editing states
   const [editRowId, setEditRowId] = useState(null);
@@ -243,9 +245,15 @@ function MentorsPage() {
     return REASONS_MENTORING_LABELS[num] || `Unknown #${num}`;
   };
 
+  const navigateHome = () => {
+    navigate("/home");
+  }
+
   return (
+    
     <div className="expandable-list-container">
-      <h2 className="expandable-list-title">Mentors (Teal Expandable UI)</h2>
+      <button className="button" onClick={() => navigateHome()}>Back</button>
+      <h2 className="expandable-list-title">Mentors</h2>
 
       <div className="list-controls">
         <input

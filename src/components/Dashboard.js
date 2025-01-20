@@ -51,10 +51,14 @@ const Dashboard = () => {
     year: "numeric",
   });
 
+  const handleViewSessions = () => {
+    navigate("/sessions");
+  };
+
   // Define menu items for Mentee Dashboard
   const menuItems = [
     { label: "Dashboard", active: true },
-    { label: "Sessions", active: false },
+    { label: "Sessions", active: false, onClick: handleViewSessions },
     { label: "My Mentors", active: false },
     { label: "Notes", active: false },
     { label: "Documents", active: false },

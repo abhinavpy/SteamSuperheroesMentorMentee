@@ -12,6 +12,8 @@ import CreateSessionPage from "./components/CreateSessionPage.js";
 import SessionsPage from "./components/SessionsPage.js";
 import MenteesPage from "./components/MenteesPage.js";
 import MentorsPage from "./components/MentorsPage.js";
+import RegisterForm from "./components/RegisterForm"; // Import the RegisterForm
+import ViewOnlySessionsPage from "./components/ViewOnlySessionsPage";
 
 const App = () => {
   return (
@@ -20,6 +22,9 @@ const App = () => {
         <Routes>
           {/* Public Route */}
           <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<RegisterForm />} /> {/* Add this line */}
+                  {/* View Only Sessions Route */}
+        <Route path="/sessions" element={<ViewOnlySessionsPage />} />
 
           {/* Protected Routes */}
           <Route

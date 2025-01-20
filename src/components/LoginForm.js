@@ -12,28 +12,32 @@ const LoginForm = () => {
   const [username, setUsername] = useState(""); // Username instead of email
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
-  // Redirect to Dashboard if already authenticated
+  // Redirect to Dashboard or Admin Panel if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      if(isAdmin) navigate("/admin");
-      else navigate("/dashboard");
-    }
-  }, [isAuthenticated, isAdmin, navigate]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Call the login function from AuthContext
-    const result = login(username, password);
-
-    if (result.success) {
-      // If login is successful, decide where to navigate
       if (isAdmin) {
         navigate("/admin");
       } else {
         navigate("/dashboard");
       }
+    }
+  }, [isAuthenticated, isAdmin, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setIsLoading(true); // Start loading
+    setError(""); // Clear previous errors
+
+    // Call the login function from AuthContext
+    const result = await login(username, password);
+
+    setIsLoading(false); // End loading
+
+    if (result.success) {
+      // If login is successful, navigation is handled by useEffect
     } else {
       // Display error message
       setError(result.message);
@@ -45,8 +49,9 @@ const LoginForm = () => {
       {/* Left Section */}
       <div className="login-left">
         <h1 className="logo">STEAM Superheroes</h1>
-        {/* <img src="/SteamSuperheroes.png" alt="Example" /> */}
-        {/* <link rel="icon" href="%PUBLIC_URL%/SteamSuperheroesLogo.png" />  */}
+        {/* You can uncomment the following lines to include images or icons */}
+        {/* <img src="/SteamSuperheroes.png" alt="STEAM Superheroes Logo" /> */}
+        {/* <link rel="icon" href="%PUBLIC_URL%/SteamSuperheroesLogo.png" /> */}
         <p className="tagline">Empowering Mentors and Mentees in STEAM Fields. 🦸‍♂️🦸‍♀️</p>
       </div>
 
@@ -57,8 +62,10 @@ const LoginForm = () => {
           <p className="form-subtitle">Let's sign in to your account and get started.</p>
 
           <form onSubmit={handleSubmit} className="login-form">
+            {/* Display error message if any */}
             {error && <div className="error-message">{error}</div>}
 
+            {/* Username Input */}
             <div className="input-group">
               <label htmlFor="username" className="input-label">Username</label>
               <div className="input-wrapper">
@@ -75,6 +82,7 @@ const LoginForm = () => {
               </div>
             </div>
 
+            {/* Password Input */}
             <div className="input-group">
               <label htmlFor="password" className="input-label">Password</label>
               <div className="input-wrapper">
@@ -91,9 +99,13 @@ const LoginForm = () => {
               </div>
             </div>
 
-            <button type="submit" className="submit-btn">Sign In</button>
+            {/* Submit Button */}
+            <button type="submit" className="submit-btn" disabled={isLoading}>
+              {isLoading ? "Signing In..." : "Sign In"}
+            </button>
           </form>
 
+          {/* Additional Links */}
           <div className="links">
             <p>
               Don’t have an account? <Link to="/signup">Sign Up</Link>
@@ -101,10 +113,12 @@ const LoginForm = () => {
             <Link to="/forgot-password">Forgot Password?</Link>
           </div>
 
+          {/* Divider */}
           <div className="divider">
             <hr /> <span>OR</span> <hr />
           </div>
 
+          {/* Social Login Buttons */}
           <div className="social-login">
             <button className="social-btn facebook">Facebook</button>
             <button className="social-btn twitter">Twitter</button>
